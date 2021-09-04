@@ -4,27 +4,27 @@ import { Model } from "sequelize";
 
 interface ItemAttributes {
   id: string;
-  user_id: string;
+  userId: string;
   category: string;
   description: Text;
   status: Enumerator[];
   availability: boolean;
-  expiry_date: Date;
-  created_at: Date;
-  updated_at: Date;
+  expiryDate: Date;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 module.exports = (sequelize: any, DataTypes: any) => {
   class Item extends Model<ItemAttributes> implements ItemAttributes {
     id!: string;
-    user_id!: string;
+    userId!: string;
     category!: string;
     description!: Text;
     status!: Enumerator[];
     availability!: boolean;
-    expiry_date!: Date;
-    created_at!: Date;
-    updated_at!: Date;
+    expiryDate!: Date;
+    createdAt!: Date;
+    updatedAt!: Date;
 
     static associate(models: any) {
       // define association here
@@ -39,7 +39,7 @@ module.exports = (sequelize: any, DataTypes: any) => {
         autoIncrement: true,
         primaryKey: true,
       },
-      user_id: {
+      userId: {
         type: DataTypes.BIGINT.UNSIGNED,
         allowNull: false,
         references: {
@@ -69,17 +69,17 @@ module.exports = (sequelize: any, DataTypes: any) => {
       availability: {
         type: DataTypes.BOOLEAN,
       },
-      expiry_date: {
+      expiryDate: {
         type: DataTypes.DATE,
         allowNull: false,
         defaultValue: DataTypes.NOW,
       },
-      created_at: {
+      createdAt: {
         type: DataTypes.DATE,
         allowNull: false,
         defaultValue: DataTypes.NOW,
       },
-      updated_at: {
+      updatedAt: {
         type: DataTypes.DATE,
         allowNull: false,
         defaultValue: DataTypes.NOW,
@@ -88,6 +88,8 @@ module.exports = (sequelize: any, DataTypes: any) => {
     {
       sequelize,
       modelName: "Item",
+      timestamps: false,
+      underscored: true,
     }
   );
   return Item;

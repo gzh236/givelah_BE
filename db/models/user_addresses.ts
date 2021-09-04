@@ -3,12 +3,12 @@ import { Model } from "sequelize";
 
 interface UserAddressAttributes {
   id: string;
-  user_id: string;
-  street_address: string;
-  postal_code: Text;
+  userId: string;
+  streetAddresses: string;
+  postalCode: Text;
   permission: boolean;
-  created_at: Date;
-  updated_at: Date;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 module.exports = (sequelize, DataTypes) => {
@@ -17,12 +17,12 @@ module.exports = (sequelize, DataTypes) => {
     implements UserAddressAttributes
   {
     id!: string;
-    user_id!: string;
-    street_address!: string;
-    postal_code!: Text;
+    userId!: string;
+    streetAddresses!: string;
+    postalCode!: Text;
     permission!: boolean;
-    created_at!: Date;
-    updated_at!: Date;
+    createdAt!: Date;
+    updatedAt!: Date;
 
     static associate(models) {
       // define association here
@@ -37,7 +37,7 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
         primaryKey: true,
       },
-      user_id: {
+      userId: {
         type: DataTypes.BIGINT.UNSIGNED,
         allowNull: false,
         references: {
@@ -45,11 +45,11 @@ module.exports = (sequelize, DataTypes) => {
           key: "id",
         },
       },
-      street_address: {
+      streetAddresses: {
         type: DataTypes.BIGINT.UNSIGNED,
         allowNull: false,
       },
-      postal_code: {
+      postalCode: {
         type: DataTypes.BIGINT.UNSIGNED,
         allowNull: false,
       },
@@ -58,12 +58,12 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
         defaultValue: false,
       },
-      created_at: {
+      createdAt: {
         type: DataTypes.DATE,
         allowNull: false,
         defaultValue: DataTypes.NOW,
       },
-      updated_at: {
+      updatedAt: {
         type: DataTypes.DATE,
         allowNull: false,
         defaultValue: DataTypes.NOW,
@@ -72,6 +72,8 @@ module.exports = (sequelize, DataTypes) => {
     {
       sequelize,
       modelName: "User_Addresses",
+      timestamps: false,
+      underscored: true,
     }
   );
   return User_Addresses;

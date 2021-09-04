@@ -5,13 +5,13 @@ interface UserAttributes {
   id: string;
   username: string;
   email: string;
-  first_name: string;
-  last_name: string;
-  self_summary: Text;
-  photo_url: string;
+  firstName: string;
+  lastName: string;
+  selfSummary: Text;
+  photoUrl: string;
   hash: string;
-  created_at: Date;
-  updated_at: Date;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 module.exports = (sequelize: any, DataTypes: any) => {
@@ -24,13 +24,13 @@ module.exports = (sequelize: any, DataTypes: any) => {
     id!: string;
     username!: string;
     email!: string;
-    first_name!: string;
-    last_name!: string;
-    self_summary!: Text;
-    photo_url!: string;
+    firstName!: string;
+    lastName!: string;
+    selfSummary!: Text;
+    photoUrl!: string;
     hash!: string;
-    created_at!: Date;
-    updated_at!: Date;
+    createdAt!: Date;
+    updatedAt!: Date;
 
     static associate(models: any) {
       // define association here
@@ -55,30 +55,30 @@ module.exports = (sequelize: any, DataTypes: any) => {
         allowNull: false,
         unique: true,
       },
-      first_name: {
+      firstName: {
         type: DataTypes.STRING,
         allowNull: false,
       },
-      last_name: {
+      lastName: {
         type: DataTypes.STRING,
         allowNull: false,
       },
-      self_summary: {
+      selfSummary: {
         type: DataTypes.TEXT,
       },
-      photo_url: {
+      photoUrl: {
         type: DataTypes.STRING,
       },
       hash: {
         type: DataTypes.STRING,
         allowNull: false,
       },
-      created_at: {
+      createdAt: {
         type: DataTypes.DATE,
         allowNull: false,
         defaultValue: DataTypes.NOW,
       },
-      updated_at: {
+      updatedAt: {
         type: DataTypes.DATE,
         allowNull: false,
         defaultValue: DataTypes.NOW,
@@ -88,6 +88,7 @@ module.exports = (sequelize: any, DataTypes: any) => {
       sequelize,
       modelName: "User",
       timestamps: false,
+      underscored: true,
     }
   );
   return User;

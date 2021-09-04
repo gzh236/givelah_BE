@@ -4,10 +4,10 @@ import { Model } from "sequelize";
 
 interface ItemImagesAttributes {
   id: string;
-  item_id: string;
-  image_url: string;
-  created_at: Date;
-  updated_at: Date;
+  itemId: string;
+  imageUrl: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 module.exports = (sequelize, DataTypes) => {
@@ -16,10 +16,10 @@ module.exports = (sequelize, DataTypes) => {
     implements ItemImagesAttributes
   {
     id!: string;
-    item_id!: string;
-    image_url!: string;
-    created_at!: Date;
-    updated_at!: Date;
+    itemId!: string;
+    imageUrl!: string;
+    createdAt!: Date;
+    updatedAt!: Date;
 
     static associate(models) {
       // define association here
@@ -34,7 +34,7 @@ module.exports = (sequelize, DataTypes) => {
         autoIncrement: true,
         primaryKey: true,
       },
-      item_id: {
+      itemId: {
         type: DataTypes.BIGINT.UNSIGNED,
         allowNull: false,
         references: {
@@ -42,15 +42,15 @@ module.exports = (sequelize, DataTypes) => {
           key: "id",
         },
       },
-      image_url: {
+      imageUrl: {
         type: DataTypes.STRING,
       },
-      created_at: {
+      createdAt: {
         type: DataTypes.DATE,
         allowNull: false,
         defaultValue: DataTypes.NOW,
       },
-      updated_at: {
+      updatedAt: {
         type: DataTypes.DATE,
         allowNull: false,
         defaultValue: DataTypes.NOW,

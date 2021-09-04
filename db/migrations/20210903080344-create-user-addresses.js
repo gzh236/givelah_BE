@@ -8,7 +8,7 @@ module.exports = {
         allowNull: false,
         primaryKey: true,
       },
-      user_id: {
+      userId: {
         type: Sequelize.BIGINT.UNSIGNED,
         allowNull: false,
         references: {
@@ -16,11 +16,11 @@ module.exports = {
           key: "id",
         },
       },
-      street_address: {
+      streetAddresses: {
         type: Sequelize.STRING,
         allowNull: false,
       },
-      postal_code: {
+      postalCode: {
         type: Sequelize.STRING,
         allowNull: false,
       },
@@ -29,12 +29,12 @@ module.exports = {
         allowNull: false,
         defaultValue: false,
       },
-      created_at: {
+      createdAt: {
         type: Sequelize.DATE,
         allowNull: false,
         defaultValue: Sequelize.NOW,
       },
-      updated_at: {
+      updatedAt: {
         type: Sequelize.DATE,
         allowNull: false,
         defaultValue: Sequelize.NOW,

@@ -18,30 +18,30 @@ module.exports = {
         allowNull: false,
         unique: true,
       },
-      first_name: {
+      firstName: {
         type: Sequelize.STRING,
         allowNull: false,
       },
-      last_name: {
+      lastName: {
         type: Sequelize.STRING,
         allowNull: false,
       },
-      self_summary: {
+      selfSummary: {
         type: Sequelize.TEXT,
       },
-      photo_url: {
+      photoUrl: {
         type: Sequelize.STRING,
       },
       hash: {
         type: Sequelize.STRING,
         allowNull: false,
       },
-      created_at: {
+      createdAt: {
         type: Sequelize.DATE,
         allowNull: false,
         defaultValue: Sequelize.NOW,
       },
-      updated_at: {
+      updatedAt: {
         type: Sequelize.DATE,
         allowNull: false,
         defaultValue: Sequelize.NOW,

@@ -8,7 +8,7 @@ module.exports = {
         autoIncrement: true,
         primaryKey: true,
       },
-      item_id: {
+      itemId: {
         type: Sequelize.BIGINT.UNSIGNED,
         allowNull: false,
         references: {
@@ -16,15 +16,15 @@ module.exports = {
           key: "id",
         },
       },
-      image_url: {
+      imageUrl: {
         type: Sequelize.STRING,
       },
-      created_at: {
+      createdAt: {
         type: Sequelize.DATE,
         allowNull: false,
         defaultValue: Sequelize.NOW,
       },
-      updated_at: {
+      updatedAt: {
         type: Sequelize.DATE,
         allowNull: false,
         defaultValue: Sequelize.NOW,
