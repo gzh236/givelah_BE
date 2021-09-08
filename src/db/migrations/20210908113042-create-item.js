@@ -1,11 +1,11 @@
 "use strict";
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    await queryInterface.createTable("User_Addresses", {
+    await queryInterface.createTable("Items", {
       id: {
         type: Sequelize.BIGINT.UNSIGNED,
-        autoIncrement: true,
         allowNull: false,
+        autoIncrement: true,
         primaryKey: true,
       },
       userId: {
@@ -15,33 +15,45 @@ module.exports = {
           model: "Users",
           key: "id",
         },
+        onDelete: "CASCADE",
       },
-      streetAddresses: {
+      category: {
         type: Sequelize.STRING,
         allowNull: false,
       },
-      postalCode: {
-        type: Sequelize.STRING,
+      description: {
+        type: Sequelize.TEXT,
         allowNull: false,
       },
-      permission: {
+      status: {
+        type: Sequelize.ENUM(
+          "For Donation",
+          "Pending Donation",
+          "Donated",
+          "Wishlist It",
+          "Pending Collection",
+          "Collected"
+        ),
+      },
+      availability: {
         type: Sequelize.BOOLEAN,
+      },
+      expiryDate: {
+        type: Sequelize.DATE,
         allowNull: false,
-        defaultValue: false,
+        defaultValue: Sequelize.NOW,
       },
       createdAt: {
-        type: Sequelize.DATE,
         allowNull: false,
-        defaultValue: Sequelize.NOW,
+        type: Sequelize.DATE,
       },
       updatedAt: {
-        type: Sequelize.DATE,
         allowNull: false,
-        defaultValue: Sequelize.NOW,
+        type: Sequelize.DATE,
       },
     });
   },
   down: async (queryInterface, Sequelize) => {
-    await queryInterface.dropTable("User_Addresses");
+    await queryInterface.dropTable("Items");
   },
 };

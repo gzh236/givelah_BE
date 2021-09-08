@@ -2,13 +2,13 @@ import Joi from "joi";
 
 module.exports = {
   registrationValidator: Joi.object({
-    first_name: Joi.string().required().min(1).max(30).messages({
+    firstName: Joi.string().required().min(1).max(30).messages({
       "string.base": `"First Name" should be a type of 'text'`,
       "string.empty": `"First Name" cannot be an empty field`,
       "string.min": `"First Name" should have a minimum length of {#limit}`,
       "any.required": `"First Name" is a required field`,
     }),
-    last_name: Joi.string().required().min(1).max(30).messages({
+    lastName: Joi.string().required().min(1).max(30).messages({
       "string.base": `"Last Name" should be a type of 'text'`,
       "string.empty": `"Last Name" cannot be an empty field`,
       "string.min": `"Last Name" should have a minimum length of {#limit}`,
@@ -20,13 +20,13 @@ module.exports = {
       "string.min": `"Email" should have a minimum length of {#limit}`,
       "any.required": `"Email" is a required field`,
     }),
-    username: Joi.string().required().min(6).max(30).messages({
+    username: Joi.string().required().min(3).max(30).messages({
       "string.base": `"username" should be a type of 'text'`,
       "string.empty": `"username" cannot be an empty field`,
       "string.min": `"username" should have a minimum length of {#limit}`,
       "any.required": `"username" is a required field`,
     }),
-    self_summary: Joi.string().optional().max(1000).messages({
+    selfSummary: Joi.string().optional().max(1000).messages({
       "string.base": `"Self Summary" should be a type of 'text'`,
       "string.empty": `"Self Summary" cannot be an empty field`,
       "string.min": `"Self Summary" should have a minimum length of {#limit}`,
