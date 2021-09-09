@@ -41,4 +41,7 @@ userRouter.post("/login", userController.login);
 // logout
 userRouter.get("/logout", userController.logout);
 
+// show one user
+userRouter.get("/show/:username", userController.showOne);
+
 export default userRouter;

@@ -159,4 +159,27 @@ module.exports = {
     res.statusCode = 204;
     return `Successfully logged out`;
   },
+
+  showOneService: async (username: string, res: Response) => {
+    // query db for one user
+    let user;
+
+    try {
+      user = await User.findOne({
+        where: { username: username },
+      });
+    } catch (err) {
+      console.log(err);
+      res.statusCode = 500;
+      return err;
+    }
+
+    if (!user) {
+      res.statusCode = 400;
+      return `User not found!`;
+    }
+
+    res.statusCode = 200;
+    return user;
+  },
 };

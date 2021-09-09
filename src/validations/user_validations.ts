@@ -59,4 +59,7 @@ module.exports = {
       "any.required": `"password" is a required field`,
     }),
   }),
+  usernameValidator: Joi.object({
+    username: Joi.string().required().min(3).max(30),
+  }),
 };
