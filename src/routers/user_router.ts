@@ -1,6 +1,6 @@
 import express from "express";
 import multer from "multer";
-const userController = require("../controllers/user_controller");
+import { userController } from "../controllers/user_controller";
 
 const cloudinary = require("cloudinary").v2;
 const { CloudinaryStorage } = require("multer-storage-cloudinary");
@@ -34,5 +34,11 @@ userRouter.post(
   uploadParser.single("img"),
   userController.register
 );
+
+// login
+userRouter.post("/login", userController.login);
+
+// logout
+userRouter.get("/logout", userController.logout);
 
 export default userRouter;

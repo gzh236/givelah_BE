@@ -46,7 +46,7 @@ module.exports = {
     }),
   }),
   loginValidator: Joi.object({
-    email: Joi.string().email().required().min(3).max(30).messages({
+    username: Joi.string().required().min(3).max(30).messages({
       "string.base": `"password" should be a type of 'text'`,
       "string.empty": `"password" cannot be an empty field`,
       "string.min": `"password" should have a minimum length of {#limit}`,

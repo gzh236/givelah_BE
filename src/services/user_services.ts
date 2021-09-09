@@ -1,7 +1,7 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { Request, Response } from "express";
-import db from "../db/models/index";
+import User from "../db/models/user";
 
 const {
   registrationValidator,
@@ -9,24 +9,23 @@ const {
 } = require("../validations/user_validations");
 
 module.exports = {
-  registration: async (req: Request, res: Response) => {
+  registrationService: async (req: Request, res: Response) => {
     // validate user form inputs
     const validationResult = registrationValidator.validate(req.body);
 
     if (validationResult.error) {
       res.statusCode = 400;
       console.log(validationResult.error);
-      return res.json(`Registration form bad inputs`);
+      return `Registration form bad inputs`;
     }
 
     const validatedParams = validationResult.value;
 
     // ensure that user doesn't already exist in DB
     let user;
-    console.log(db.model);
 
     try {
-      user = await db.model.Users.findAll({
+      user = await User.findOne({
         where: {
           email: validatedParams.email,
           username: validatedParams.username,
@@ -39,13 +38,13 @@ module.exports = {
 
     if (user) {
       res.statusCode = 409;
-      return res.json(`Email or username already in use!`);
+      return `Email or username already in use!`;
     }
 
     // ensure passwords match
     if (validatedParams.password !== validatedParams.confirmPassword) {
       res.statusCode = 400;
-      return res.json(`Entered passwords need to match!`);
+      return `Entered passwords need to match!`;
     }
 
     // convert password to hash
@@ -61,39 +60,23 @@ module.exports = {
 
     if (!hash) {
       res.statusCode = 500;
-      return res.json(`An error occurred!`);
+      return `An error occurred!`;
     }
     // save inputs to db
     let createResult;
 
-    interface UserCreationFields {
-      username: string;
-      email: string;
-      firstName: string;
-      lastName: string;
-      selfSummary?: string;
-      photoUrl?: string;
-      hash: string;
-    }
-
-    let userCreationFields: UserCreationFields = {
-      username: validatedParams.username,
-      email: validatedParams.email,
-      firstName: validatedParams.firstName,
-      lastName: validatedParams.lastName,
-      hash: hash,
-    };
-
-    if (validatedParams.selfSummary) {
-      userCreationFields["selfSummary"] = validatedParams.selfSummary;
-    }
-
-    if (req.file) {
-      userCreationFields["photoUrl"] = req.file.path;
-    }
-
     try {
-      createResult = await db.model.Users.create({ userCreationFields });
+      createResult = await User.create({
+        username: validatedParams.username,
+        email: validatedParams.email,
+        firstName: validatedParams.firstName,
+        lastName: validatedParams.lastName,
+        selfSummary: validatedParams.selfSummary
+          ? validatedParams.selfSummary
+          : "",
+        photoUrl: req.file ? req.file.path : "",
+        hash: hash,
+      });
     } catch (err) {
       res.statusCode = 500;
       console.log(err);
@@ -101,17 +84,79 @@ module.exports = {
 
     if (!createResult) {
       res.statusCode = 500;
-      return res.json("Server Error!");
+      return "Server Error!";
     }
 
     res.statusCode = 201;
-    return res.json(
-      `${user.username} has successfully registered with Givelah!`
-    );
+    return `${createResult.username} has successfully registered with Givelah!`;
   },
 
-  user: async (req: Request, res: Response) => {
+  loginService: async (req: Request, res: Response) => {
     // verify user form input
+    const validationResult = loginValidator.validate(req.body);
+
+    if (validationResult.error) {
+      res.statusCode = 400;
+      console.log(validationResult.error);
+      return `Login form bad inputs`;
+    }
+
+    const validatedParams = validationResult.value;
+
+    // find user details from db
+    let user;
+
+    try {
+      user = await User.findOne({
+        where: { username: validatedParams.username },
+      });
+    } catch (err) {
+      console.log(err);
+      res.statusCode = 500;
+    }
+
+    if (!user) {
+      res.statusCode = 400;
+      return `Username or password is incorrect!`;
+    }
+
+    // convert user password to hash and compare
+    let isPasswordValidated = false;
+
+    try {
+      isPasswordValidated = await bcrypt.compare(
+        validatedParams.password,
+        user.hash
+      );
+    } catch (err) {
+      console.log(err);
+    }
+
+    if (!isPasswordValidated) {
+      res.statusCode = 400;
+      return `Username or password is incorrect!`;
+    }
+
     // if credentials are valid, sign and issue access token
+    const accessToken = jwt.sign(
+      { username: user.username },
+      process.env.JWT_SECRET as string,
+      { expiresIn: "1h" }
+    );
+
+    const refreshToken = jwt.sign(
+      { username: user.username },
+      process.env.REFRESH_TOKEN_SECRET as string,
+      { expiresIn: "6h" }
+    );
+
+    return { accessToken: accessToken, refreshToken: refreshToken };
+  },
+
+  logoutService: async (req: Request, res: Response) => {
+    // destroy token
+    res.clearCookie("authToken");
+    res.statusCode = 204;
+    return `Successfully logged out`;
   },
 };

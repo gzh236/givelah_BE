@@ -1,24 +1,27 @@
 import { Request, Response } from "express";
-const userServices = require("../services/user_services");
 
-module.exports = {
+const {
+  registrationService,
+  loginService,
+  logoutService,
+} = require("../services/user_services");
+
+export const userController = {
   register: async (req: Request, res: Response) => {
-    // run the service from user_services
-    let registrationResponse;
+    let registrationResponse = await registrationService(req, res);
 
-    try {
-      registrationResponse = await userServices.registration(req, res);
-    } catch (err) {
-      res.statusCode = 500;
-      console.log(err);
-    }
+    return res.json(registrationResponse);
+  },
 
-    if (!registrationResponse) {
-      res.statusCode = 500;
-      return res.json(`User Creation Failed`);
-    }
+  login: async (req: Request, res: Response) => {
+    let loginResponse = await loginService(req, res);
 
-    res.statusCode = 201;
-    console.log(registrationResponse.body);
+    return res.json(loginResponse);
+  },
+
+  logout: async (req: Request, res: Response) => {
+    let logoutResponse = await logoutService(req, res);
+
+    return res.json(logoutResponse);
   },
 };

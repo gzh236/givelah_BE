@@ -1,5 +1,7 @@
 import { sequelize } from ".";
 import { Model, Optional, DataTypes } from "sequelize";
+import Item from "./item";
+import UserAddress from "./user_address";
 
 interface UserAttributes {
   id: string;
@@ -12,8 +14,7 @@ interface UserAttributes {
   hash: string;
 }
 
-interface UserCreationAttributes
-  extends Optional<UserAttributes, "selfSummary" | "photoUrl"> {}
+interface UserCreationAttributes extends Optional<UserAttributes, "id"> {}
 
 interface UserInstance
   extends Model<UserAttributes, UserCreationAttributes>,
@@ -57,6 +58,28 @@ const User = sequelize.define<UserInstance>("User", {
     type: DataTypes.STRING,
     allowNull: false,
   },
+});
+
+User.hasMany(UserAddress, {
+  sourceKey: "id",
+  foreignKey: "userId",
+  as: "userAddresses",
+});
+
+User.hasMany(Item, {
+  sourceKey: "id",
+  foreignKey: "userId",
+  as: "items",
+});
+
+Item.belongsTo(User, {
+  foreignKey: "userId",
+  as: "user",
+});
+
+UserAddress.belongsTo(User, {
+  foreignKey: "userId",
+  as: "user",
 });
 
 export default User;

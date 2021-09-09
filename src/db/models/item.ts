@@ -1,6 +1,8 @@
 import { sequelize } from ".";
 import { DataTypes, Model } from "sequelize";
 
+import ItemImages from "./item_images";
+
 interface ItemAttributes {
   id: string;
   userId: string;
@@ -58,6 +60,17 @@ const Item = sequelize.define<ItemInstance>("Item", {
     allowNull: false,
     defaultValue: DataTypes.NOW,
   },
+});
+
+Item.hasMany(ItemImages, {
+  sourceKey: "id",
+  foreignKey: "userId",
+  as: "itemImages",
+});
+
+ItemImages.belongsTo(Item, {
+  foreignKey: "itemId",
+  as: "item",
 });
 
 export default Item;
