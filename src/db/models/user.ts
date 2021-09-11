@@ -63,7 +63,6 @@ const User = sequelize.define<UserInstance>("User", {
 User.hasMany(UserAddress, {
   sourceKey: "id",
   foreignKey: "userId",
-  as: "userAddresses",
 });
 
 User.hasMany(Item, {

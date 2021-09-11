@@ -9,8 +9,11 @@ interface UserAddressAttributes {
   permission: boolean;
 }
 
+interface UserAddressCreationAttributes
+  extends Optional<UserAddressAttributes, "id"> {}
+
 interface UserAddressInstance
-  extends Model<UserAddressAttributes>,
+  extends Model<UserAddressAttributes, UserAddressCreationAttributes>,
     UserAddressAttributes {
   createdAt?: Date;
   updatedAt?: Date;
@@ -32,7 +35,7 @@ const UserAddress = sequelize.define<UserAddressInstance>("UserAddress", {
     },
   },
   streetAddresses: {
-    type: DataTypes.BIGINT.UNSIGNED,
+    type: DataTypes.STRING,
     allowNull: false,
   },
   postalCode: {

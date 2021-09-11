@@ -6,6 +6,7 @@ import ItemImages from "./item_images";
 interface ItemAttributes {
   id: string;
   userId: string;
+  name: string;
   category: string;
   description: Text;
   status: Enumerator[];
@@ -33,6 +34,10 @@ const Item = sequelize.define<ItemInstance>("Item", {
       key: "id",
     },
     onDelete: "CASCADE",
+  },
+  name: {
+    type: DataTypes.STRING,
+    allowNull: false,
   },
   category: {
     type: DataTypes.STRING,
@@ -65,12 +70,10 @@ const Item = sequelize.define<ItemInstance>("Item", {
 Item.hasMany(ItemImages, {
   sourceKey: "id",
   foreignKey: "userId",
-  as: "itemImages",
 });
 
 ItemImages.belongsTo(Item, {
   foreignKey: "itemId",
-  as: "item",
 });
 
 export default Item;

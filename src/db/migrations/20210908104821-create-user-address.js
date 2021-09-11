@@ -1,7 +1,7 @@
 "use strict";
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    await queryInterface.createTable("User_Addresses", {
+    await queryInterface.createTable("UserAddresses", {
       id: {
         type: Sequelize.BIGINT.UNSIGNED,
         autoIncrement: true,
@@ -17,7 +17,7 @@ module.exports = {
         },
       },
       streetAddresses: {
-        type: Sequelize.BIGINT.UNSIGNED,
+        type: Sequelize.STRING,
         allowNull: false,
       },
       postalCode: {
@@ -40,6 +40,6 @@ module.exports = {
     });
   },
   down: async (queryInterface, Sequelize) => {
-    await queryInterface.dropTable("User_Addresses");
+    await queryInterface.dropTable("UserAddresses");
   },
 };
