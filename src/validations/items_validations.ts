@@ -1,11 +1,12 @@
 import Joi from "joi";
 
-// module.exports = {
-//     itemValidator: Joi.object({
-//         category: Joi.string().requir
-//         description: Text;
-//         status: Enumerator[];
-//         availability: boolean;
-//         expiryDate: Date;
-//     })
-// }
+export const itemValidator = {
+  itemValidator: Joi.object({
+    category: Joi.string().required(),
+    description: Joi.string().required(),
+    quantity: Joi.number().required(),
+    status: Joi.string().required(),
+    availability: Joi.bool().required(),
+    expiryDate: Joi.date().required(),
+  }),
+};

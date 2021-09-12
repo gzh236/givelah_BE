@@ -16,7 +16,7 @@ interface UserAttributes {
 
 interface UserCreationAttributes extends Optional<UserAttributes, "id"> {}
 
-interface UserInstance
+export interface UserInstance
   extends Model<UserAttributes, UserCreationAttributes>,
     UserAttributes {
   createdAt?: Date;
@@ -60,7 +60,7 @@ const User = sequelize.define<UserInstance>("User", {
   },
 });
 
-User.hasMany(UserAddress, {
+User.hasOne(UserAddress, {
   sourceKey: "id",
   foreignKey: "userId",
 });
@@ -68,17 +68,14 @@ User.hasMany(UserAddress, {
 User.hasMany(Item, {
   sourceKey: "id",
   foreignKey: "userId",
-  as: "items",
 });
 
 Item.belongsTo(User, {
   foreignKey: "userId",
-  as: "user",
 });
 
 UserAddress.belongsTo(User, {
   foreignKey: "userId",
-  as: "user",
 });
 
 export default User;

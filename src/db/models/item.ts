@@ -1,5 +1,5 @@
 import { sequelize } from ".";
-import { DataTypes, Model } from "sequelize";
+import { DataTypes, Model, Optional } from "sequelize";
 
 import ItemImages from "./item_images";
 
@@ -7,14 +7,19 @@ interface ItemAttributes {
   id: string;
   userId: string;
   name: string;
-  category: string;
+  category: Enumerator[];
   description: Text;
+  quantity: number;
   status: Enumerator[];
   availability: boolean;
   expiryDate: Date;
 }
 
-interface ItemInstance extends Model<ItemAttributes>, ItemAttributes {
+interface ItemCreationAtrributes extends Optional<ItemAttributes, "id"> {}
+
+export interface ItemInstance
+  extends Model<ItemAttributes, ItemCreationAtrributes>,
+    ItemAttributes {
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -40,30 +45,35 @@ const Item = sequelize.define<ItemInstance>("Item", {
     allowNull: false,
   },
   category: {
-    type: DataTypes.STRING,
+    type: DataTypes.ENUM(
+      "Educational",
+      "Electronic Gadgets",
+      "Entertainment",
+      "Food",
+      "Lifestyle",
+      "Others"
+    ),
     allowNull: false,
   },
   description: {
     type: DataTypes.TEXT,
     allowNull: false,
   },
+  quantity: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+  },
   status: {
-    type: DataTypes.ENUM(
-      "For Donation",
-      "Pending Donation",
-      "Donated",
-      "Wishlist It",
-      "Pending Collection",
-      "Collected"
-    ),
+    type: DataTypes.ENUM("For Donation", "Wishlist Item"),
+    allowNull: false,
   },
   availability: {
     type: DataTypes.BOOLEAN,
+    allowNull: false,
   },
   expiryDate: {
-    type: DataTypes.DATE,
+    type: DataTypes.DATEONLY,
     allowNull: false,
-    defaultValue: DataTypes.NOW,
   },
 });
 

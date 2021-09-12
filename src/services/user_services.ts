@@ -3,15 +3,14 @@ import jwt from "jsonwebtoken";
 import { Request, Response } from "express";
 import User from "../db/models/user";
 
-const {
-  registrationValidator,
-  loginValidator,
-} = require("../validations/user_validations");
+import { userValidation } from "../validations/user_validations";
 
 module.exports = {
   registrationService: async (req: Request, res: Response) => {
     // validate user form inputs
-    const validationResult = registrationValidator.validate(req.body);
+    const validationResult = userValidation.registrationValidator.validate(
+      req.body
+    );
 
     if (validationResult.error) {
       res.statusCode = 400;
@@ -93,7 +92,7 @@ module.exports = {
 
   loginService: async (req: Request, res: Response) => {
     // verify user form input
-    const validationResult = loginValidator.validate(req.body);
+    const validationResult = userValidation.loginValidator.validate(req.body);
 
     if (validationResult.error) {
       res.statusCode = 400;

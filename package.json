@@ -46,6 +46,10 @@
   "devDependencies": {
     "@tsconfig/recommended": "^1.0.1",
     "@types/joi": "^17.2.3",
+    "@types/sequelize": "^4.28.10",
+    "@typescript-eslint/eslint-plugin": "^4.31.0",
+    "@typescript-eslint/parser": "^4.31.0",
+    "eslint": "^7.32.0",
     "sequelize-cli": "^6.2.0",
     "ts-node-dev": "^1.1.8",
     "tsconfig-paths": "^3.11.0"

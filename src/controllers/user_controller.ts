@@ -1,6 +1,5 @@
+import { RSA_NO_PADDING } from "constants";
 import { Request, Response } from "express";
-
-const { usernameValidator } = require("../validations/user_validations");
 
 const {
   registrationService,
@@ -30,7 +29,12 @@ export const userController = {
 
   showOne: async (req: Request, res: Response) => {
     // verify username in query params
-    let validatedUsername = usernameValidator.validate(req.params.username);
+
+    if (!req.params.username) {
+      return res.json(`Error finding user!`);
+    }
+
+    let username = req.params.username;
 
     let showOneResponse = await showOneService(req.params.username, res);
 

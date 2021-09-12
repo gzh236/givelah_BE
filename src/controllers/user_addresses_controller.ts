@@ -54,7 +54,13 @@ export const userAddressController = {
     }
 
     let showResponse = await showService(req, username, res);
-    let userAddress = showResponse.UserAddresses[0].dataValues;
+    let userAddress;
+
+    if (!showResponse.UserAddress) {
+      return res.json(`No address found!`);
+    }
+
+    userAddress = showResponse.UserAddress.dataValues;
 
     return res.json({
       streetAddress: userAddress.streetAddresses,

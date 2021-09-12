@@ -29,23 +29,21 @@ module.exports = {
         type: Sequelize.TEXT,
         allowNull: false,
       },
+      quantity: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+      },
       status: {
-        type: Sequelize.ENUM(
-          "For Donation",
-          "Pending Donation",
-          "Donated",
-          "Wishlist It",
-          "Pending Collection",
-          "Collected"
-        ),
+        type: Sequelize.ENUM("For Donation", "Wishlist Item"),
+        allowNull: false,
       },
       availability: {
         type: Sequelize.BOOLEAN,
+        allowNull: false,
       },
       expiryDate: {
-        type: Sequelize.DATE,
+        type: Sequelize.DATEONLY,
         allowNull: false,
-        defaultValue: Sequelize.NOW,
       },
       createdAt: {
         allowNull: false,
