@@ -32,10 +32,21 @@ export const itemController = {
       itemId = req.params.itemId;
     }
 
+    let key = "";
+
+    if (req.params.key) {
+      key = req.params.key;
+    }
+
     let showItemResponse;
 
     try {
-      showItemResponse = await itemService.showItemService(req, itemId, res);
+      showItemResponse = await itemService.showItemService(
+        req,
+        itemId,
+        res,
+        key
+      );
     } catch (err) {
       return res.json(`Error displaying item`);
     }
@@ -63,8 +74,6 @@ export const itemController = {
     } catch (err) {
       return res.json(err);
     }
-
-    // somehow filter the items by donated status
 
     res.statusCode = 201;
     return res.json(showResponse);

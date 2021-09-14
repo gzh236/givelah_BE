@@ -29,9 +29,8 @@ module.exports = {
         type: Sequelize.TEXT,
         allowNull: false,
       },
-      quantity: {
-        type: Sequelize.INTEGER,
-        allowNull: false,
+      imageUrls: {
+        type: Sequelize.JSON,
       },
       status: {
         type: Sequelize.ENUM("For Donation", "Wishlist Item"),

@@ -1,7 +1,11 @@
 import { Request, Response } from "express";
 
-import { userAddressController } from "controllers/user_addresses_controller";
-import ItemImages from "../db/models/item_images";
+import fs, { PathLike } from "fs";
+import util from "util";
+
+const unlinkFile = util.promisify(fs.unlink);
+
+import { uploadImageFile } from "../s3";
 import Item, { ItemInstance } from "../db/models/item";
 import User, { UserInstance } from "../db/models/user";
 import { itemValidator } from "../validations/items_validations";
@@ -49,7 +53,9 @@ export const itemService = {
         name: validatedParams.name,
         category: validatedParams.category,
         description: validatedParams.description,
-        quantity: validatedParams.quantity,
+        imageUrls: {
+          urls: [],
+        },
         status: validatedParams.status,
         availability: validatedParams.availability,
         expiryDate: validatedParams.expiryDate,
@@ -66,10 +72,46 @@ export const itemService = {
     return item;
   },
 
+  uploadImageService: async (
+    req: Request,
+    res: Response,
+    file: { path: PathLike; filename: any }
+  ) => {
+    let uploadResult;
+
+    try {
+      uploadResult = await uploadImageFile(file);
+    } catch (err) {
+      console.log(err);
+      return `Error occurred whilst uploading image!`;
+    }
+
+    if (!uploadResult) {
+      return `Error uploading image`;
+    }
+
+    console.log(uploadResult);
+
+    try {
+      await unlinkFile(file.path);
+    } catch (err) {
+      console.log(err);
+      return `Error occurred!`;
+    }
+
+    res.statusCode = 201;
+    return {
+      // just return the key?
+      resp: uploadResult,
+      msg: `Image upload successful!`,
+    };
+  },
+
   showItemService: async (
     req: Request,
     itemId: string,
-    res: Response
+    res: Response,
+    key: string
   ): Promise<string | ItemInstance> => {
     let item;
 
@@ -78,7 +120,6 @@ export const itemService = {
         where: {
           id: itemId,
         },
-        include: ItemImages,
       });
     } catch (err) {
       return err as string;
@@ -114,12 +155,22 @@ export const itemService = {
       return `Search failed`;
     }
 
+    // find the Items model where:
+    // 1) items belong to userId
+    // 2) items has a status of 'For Donation'
+    // 3) include ItemsImages Model, where:
+    // 4) for each itemId find all the associated images in the ItemsImages model
+
     try {
       userItems = await Item.findAll({
         where: {
           userId: user.id,
           status: "For Donation",
         },
+        // include: [{
+        //   model: ItemImages,
+        //   where:
+        // }],
       });
     } catch (err) {
       console.log(err);
