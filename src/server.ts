@@ -6,6 +6,7 @@ import cors from "cors";
 import userRouter from "./routers/user_router";
 import userAddressRouter from "./routers/user_addresses_router";
 import itemRouter from "./routers/items_router";
+import itemImageRouter from "./routers/items_images_router";
 
 const app: Application = express();
 const PORT = process.env.PORT || 5000;
@@ -23,3 +24,4 @@ app.listen(PORT, () => {
 app.use("/api/v1/users", userRouter);
 app.use("/api/v1/address", userAddressRouter);
 app.use("/api/v1/items", itemRouter);
+app.use("/api/v1/item-images", itemImageRouter);

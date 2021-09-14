@@ -1,5 +1,6 @@
 import { sequelize } from ".";
 import { DataTypes, Model, Optional } from "sequelize";
+import { ItemImages } from "./item_images";
 
 interface ItemAttributes {
   id: string;
@@ -7,7 +8,6 @@ interface ItemAttributes {
   name: string;
   category: Enumerator[];
   description: Text;
-  imageUrls: Object;
   status: Enumerator[];
   availability: boolean;
   expiryDate: Date;
@@ -57,9 +57,6 @@ const Item = sequelize.define<ItemInstance>("Item", {
     type: DataTypes.TEXT,
     allowNull: false,
   },
-  imageUrls: {
-    type: DataTypes.JSON,
-  },
   status: {
     type: DataTypes.ENUM("For Donation", "Wishlist Item"),
     allowNull: false,
@@ -72,6 +69,15 @@ const Item = sequelize.define<ItemInstance>("Item", {
     type: DataTypes.DATEONLY,
     allowNull: false,
   },
+});
+
+Item.hasMany(ItemImages, {
+  sourceKey: "id",
+  foreignKey: "itemId",
+});
+
+ItemImages.belongsTo(Item, {
+  foreignKey: "itemId",
 });
 
 export default Item;
