@@ -18,13 +18,15 @@ export const itemImagesServices = {
     let uploadImageToS3;
     let uploadImageToDb;
 
+    console.log(req.file);
+
     if (!req.file) {
       return `No image uploaded!`;
     }
 
     try {
       uploadImageToS3 = await uploadImageFile(file);
-    } catch (err) {
+    } catch (err: any) {
       console.log(err);
       return `Error encountered when uploading file!`;
     }
@@ -32,10 +34,11 @@ export const itemImagesServices = {
     try {
       uploadImageToDb = await ItemImages.create({
         itemId: id,
-        imageUrl: req.file.path,
+        imageUrl: uploadImageToS3.Key,
       });
-    } catch (err) {
+    } catch (err: any) {
       console.log(err);
+      return `failed to upload image`;
     }
 
     if (!uploadImageToDb) {
@@ -45,6 +48,7 @@ export const itemImagesServices = {
     // remove file from uploads folder
     try {
       await unlinkFile(file.path);
+      console.log(`File successfully unlinked`);
     } catch (err) {
       console.log(err);
       return `Error occurred!`;

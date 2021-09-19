@@ -5,7 +5,7 @@ import User from "../db/models/user";
 
 import { userValidation } from "../validations/user_validations";
 
-module.exports = {
+export const userServices = {
   registrationService: async (req: Request, res: Response) => {
     // validate user form inputs
     const validationResult = userValidation.registrationValidator.validate(
@@ -14,7 +14,6 @@ module.exports = {
 
     if (validationResult.error) {
       res.statusCode = 400;
-      console.log(validationResult.error);
       return `Registration form bad inputs`;
     }
 
@@ -30,9 +29,10 @@ module.exports = {
           username: validatedParams.username,
         },
       });
-    } catch (err) {
+    } catch (err: any) {
       res.statusCode = 500;
       console.log(err);
+      return err;
     }
 
     if (user) {
@@ -79,7 +79,10 @@ module.exports = {
     } catch (err) {
       res.statusCode = 500;
       console.log(err);
+      return `err.message`;
     }
+
+    console.log(createResult);
 
     if (!createResult) {
       res.statusCode = 500;
@@ -97,7 +100,7 @@ module.exports = {
     if (validationResult.error) {
       res.statusCode = 400;
       console.log(validationResult.error);
-      return `Login form bad inputs`;
+      return `Username or password is incorrect`;
     }
 
     const validatedParams = validationResult.value;
@@ -109,9 +112,9 @@ module.exports = {
       user = await User.findOne({
         where: { username: validatedParams.username },
       });
-    } catch (err) {
-      console.log(err);
+    } catch (err: any) {
       res.statusCode = 500;
+      return `Username or password is incorrect`;
     }
 
     if (!user) {
@@ -127,8 +130,9 @@ module.exports = {
         validatedParams.password,
         user.hash
       );
-    } catch (err) {
+    } catch (err: any) {
       console.log(err);
+      return `Error signing in`;
     }
 
     if (!isPasswordValidated) {
@@ -143,13 +147,14 @@ module.exports = {
       { expiresIn: "1h" }
     );
 
-    const refreshToken = jwt.sign(
-      { username: user.username },
-      process.env.REFRESH_TOKEN_SECRET as string,
-      { expiresIn: "6h" }
-    );
+    // const refreshToken = jwt.sign(
+    //   { username: user.username },
+    //   process.env.REFRESH_TOKEN_SECRET as string,
+    //   { expiresIn: "6h" }
+    // );
 
-    return { accessToken: accessToken, refreshToken: refreshToken };
+    res.statusCode = 201;
+    return accessToken;
   },
 
   logoutService: async (req: Request, res: Response) => {

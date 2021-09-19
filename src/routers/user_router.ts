@@ -5,6 +5,8 @@ import { userController } from "../controllers/user_controller";
 const cloudinary = require("cloudinary").v2;
 const { CloudinaryStorage } = require("multer-storage-cloudinary");
 
+import { authMiddleware } from "../middleware/user_auth";
+
 const userRouter = express.Router();
 
 const upload = multer({ dest: "uploads/" });
@@ -31,17 +33,22 @@ const uploadParser = multer({ storage: cloudStorage });
 // register
 userRouter.post(
   "/register",
+  authMiddleware.unauthenticated,
   uploadParser.single("img"),
   userController.register
 );
 
 // login
-userRouter.post("/login", userController.login);
+userRouter.post("/login", authMiddleware.unauthenticated, userController.login);
 
 // logout
-userRouter.get("/logout", userController.logout);
+userRouter.get("/logout", authMiddleware.authenticated, userController.logout);
 
 // show one user
-userRouter.get("/show/:username", userController.showOne);
+userRouter.get(
+  "/show/:username",
+  authMiddleware.authenticated,
+  userController.showOne
+);
 
 export default userRouter;

@@ -24,4 +24,4 @@ app.listen(PORT, () => {
 app.use("/api/v1/users", userRouter);
 app.use("/api/v1/address", userAddressRouter);
 app.use("/api/v1/items", itemRouter);
-app.use("/api/v1/item-images", itemImageRouter);
+app.use("/api/v1/itemImages", itemImageRouter);

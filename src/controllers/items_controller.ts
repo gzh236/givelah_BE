@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import { itemImagesServices } from "../services/item_images_services";
 import { uploadImageFile } from "../s3";
 
 import { itemService } from "../services/items_services";
@@ -26,29 +27,6 @@ export const itemController = {
     return res.json(itemCreationResponse);
   },
 
-  uploadImageService: async (
-    req: Request,
-    res: Response
-  ): Promise<string | any> => {
-    if (!req.file) {
-      return res.json(`No file uploaded`);
-    }
-
-    const file = req.file;
-    const id = req.params.itemId;
-    let uploadResult;
-
-    try {
-      uploadResult = await itemService.uploadImageService(req, res, file, id);
-    } catch (err) {
-      console.log(err);
-      return res.json(`Error uploading file`);
-    }
-
-    res.statusCode = 201;
-    return res.json(uploadResult);
-  },
-
   showItem: async (req: Request, res: Response): Promise<string | any> => {
     let itemId = "";
 
@@ -71,7 +49,7 @@ export const itemController = {
         res,
         key
       );
-    } catch (err) {
+    } catch (err: any) {
       return res.json(`Error displaying item`);
     }
     res.statusCode = 201;
@@ -121,7 +99,7 @@ export const itemController = {
         username,
         res
       );
-    } catch (err) {
+    } catch (err: any) {
       res.statusCode = 500;
       return `Server error`;
     }

@@ -15,6 +15,7 @@ module.exports = {
           model: "Items",
           key: "id",
         },
+        onDelete: "CASCADE",
       },
       imageUrl: {
         type: Sequelize.STRING,

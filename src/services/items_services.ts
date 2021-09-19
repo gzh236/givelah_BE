@@ -61,6 +61,7 @@ export const itemService = {
       return `Error occurred during creation of item`;
     }
 
+    console.log(item);
     return item;
   },
 

@@ -1,28 +1,36 @@
-import { RSA_NO_PADDING } from "constants";
 import { Request, Response } from "express";
 
-const {
-  registrationService,
-  loginService,
-  logoutService,
-  showOneService,
-} = require("../services/user_services");
+import { userServices } from "../services/user_services";
 
 export const userController = {
   register: async (req: Request, res: Response) => {
-    let registrationResponse = await registrationService(req, res);
+    let registrationResponse;
+
+    try {
+      registrationResponse = await userServices.registrationService(req, res);
+    } catch (err: any) {
+      console.log(err);
+      return res.json(err);
+    }
 
     return res.json(registrationResponse);
   },
 
   login: async (req: Request, res: Response) => {
-    let loginResponse = await loginService(req, res);
+    let loginResponse;
+
+    try {
+      loginResponse = await userServices.loginService(req, res);
+    } catch (err: any) {
+      console.log(err);
+      return res.json(err);
+    }
 
     return res.json(loginResponse);
   },
 
   logout: async (req: Request, res: Response) => {
-    let logoutResponse = await logoutService(req, res);
+    let logoutResponse = await userServices.logoutService(req, res);
 
     return res.json(logoutResponse);
   },
@@ -36,7 +44,7 @@ export const userController = {
 
     let username = req.params.username;
 
-    let showOneResponse = await showOneService(req.params.username, res);
+    let showOneResponse = await userServices.showOneService(username, res);
 
     return res.json(showOneResponse);
   },

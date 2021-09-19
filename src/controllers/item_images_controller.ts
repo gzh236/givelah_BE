@@ -3,35 +3,29 @@ import { Request, Response } from "express";
 import { itemImagesServices } from "../services/item_images_services";
 
 export const itemImagesController = {
-  uploadImage: async (req: Request, res: Response) => {
-    if (!req.params.itemId) {
-      return res.json(`Item not found`);
-    }
-
-    let id = req.params.itemId;
-
+  uploadImage: async (req: Request, res: Response): Promise<string | any> => {
     if (!req.file) {
-      return res.json(`No file was uploaded`);
+      return res.json(`No file uploaded`);
     }
 
-    let file = req.file;
-
-    let uploadImageResponse;
+    const file = req.file;
+    console.log(req.file);
+    const id = req.params.itemId;
+    let uploadResult;
 
     try {
-      uploadImageResponse = await itemImagesServices.uploadItemImageService(
+      uploadResult = await itemImagesServices.uploadItemImageService(
         req,
         res,
         id,
         file
       );
-    } catch (err) {
+    } catch (err: any) {
       console.log(err);
-      res.statusCode = 500;
-      return res.json(`Error uploading image`);
+      return res.json(`Error uploading file`);
     }
 
     res.statusCode = 201;
-    return res.json(uploadImageResponse);
+    return res.json(uploadResult);
   },
 };
