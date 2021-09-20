@@ -28,4 +28,15 @@ export const itemImagesController = {
     res.statusCode = 201;
     return res.json(uploadResult);
   },
+
+  getImages: async (req: Request, res: Response): Promise<any> => {
+    let fileKey = req.params.key;
+    let getImageResponse;
+    try {
+      getImageResponse = await itemImagesServices.getImage(req, res, fileKey);
+    } catch (err: any) {
+      console.log(err);
+      return res.json(err);
+    }
+  },
 };

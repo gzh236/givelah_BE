@@ -7,10 +7,11 @@ interface ItemAttributes {
   userId: string;
   name: string;
   category: Enumerator[];
+  itemUrl?: string;
   description: Text;
   status: Enumerator[];
   availability: boolean;
-  expiryDate: Date;
+  expiryDate?: Date;
 }
 
 interface ItemCreationAtrributes extends Optional<ItemAttributes, "id"> {}
@@ -53,6 +54,11 @@ const Item = sequelize.define<ItemInstance>("Item", {
     ),
     allowNull: false,
   },
+
+  itemUrl: {
+    type: DataTypes.STRING,
+  },
+
   description: {
     type: DataTypes.TEXT,
     allowNull: false,

@@ -13,6 +13,7 @@ const itemRouter = express.Router();
 // Create Item
 itemRouter.post(
   "/create/:username",
+  authMiddleware.authenticated,
 
   itemController.createItem
 );
@@ -20,20 +21,36 @@ itemRouter.post(
 // Show item
 itemRouter.get(
   "/show/:itemId",
-
+  authMiddleware.authenticated,
   itemController.showItem
 );
 
 // Show all items that a user put up for donation
-itemRouter.get("/show/donated/:username", itemController.showUserDonatedItems);
+itemRouter.get(
+  "/show/donated/:username",
+  authMiddleware.authenticated,
+  itemController.showUserDonatedItems
+);
 
 // Show all items on user's wishlist
 itemRouter.get(
-  "/show/wishlist/:username",
+  "/show/wishlist/items/:username",
+  authMiddleware.authenticated,
   itemController.showUserWishlistItems
 );
 
 // show all items on website
-itemRouter.get("/view/all", itemController.showAllItems);
+itemRouter.get(
+  "/view/all",
+  authMiddleware.authenticated,
+  itemController.showAllItems
+);
+
+// edit item
+itemRouter.patch(
+  "/edit/:itemId",
+  authMiddleware.authenticated,
+  itemController.editItem
+);
 
 export default itemRouter;

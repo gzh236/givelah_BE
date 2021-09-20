@@ -6,14 +6,7 @@ import { Request, Response, NextFunction } from "express";
 export const authMiddleware = {
   authenticated: async (req: Request, res: Response, next: NextFunction) => {
     //   check for jwt token in header
-    if (!req.headers.accessToken) {
-      return res.json(`Not authorised`);
-    }
-
-    let authToken: string;
-    let stringifyAuth = req.headers.accessToken.toString();
-
-    authToken = stringifyAuth;
+    const authToken: any = req.headers["accesstoken"];
 
     if (!authToken) {
       res.statusCode = 403;
@@ -46,7 +39,7 @@ export const authMiddleware = {
   },
 
   unauthenticated: (req: Request, res: Response, next: NextFunction) => {
-    const authToken = req.headers.accessToken;
+    const authToken: any = req.headers["accesstoken"];
 
     if (!authToken) {
       next();

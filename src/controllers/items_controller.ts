@@ -81,10 +81,7 @@ export const itemController = {
     return res.json(showResponse);
   },
 
-  showUserWishlistItems: async (
-    req: Request,
-    res: Response
-  ): Promise<string | any> => {
+  showUserWishlistItems: async (req: Request, res: Response): Promise<any> => {
     if (!req.params.username) {
       return res.json(`Error searching username`);
     }
@@ -100,9 +97,12 @@ export const itemController = {
         res
       );
     } catch (err: any) {
-      res.statusCode = 500;
+      res.statusCode = 123123213;
+      console.log(err);
       return `Server error`;
     }
+
+    console.log(wishlistResponse);
 
     res.statusCode = 201;
     return res.json(wishlistResponse);
@@ -120,5 +120,19 @@ export const itemController = {
 
     res.statusCode = 201;
     return res.json(itemsResponse);
+  },
+
+  editItem: async (req: Request, res: Response): Promise<string | any> => {
+    let editResp;
+    const id = req.params.itemId;
+
+    try {
+      editResp = await itemService.editItem(req, res, id);
+    } catch (err: any) {
+      return res.json(err.message);
+    }
+
+    res.statusCode = 201;
+    return res.json(editResp);
   },
 };

@@ -12,4 +12,6 @@ itemImageRouter.post(
   itemImagesController.uploadImage
 );
 
+itemImageRouter.get("/:key", itemImagesController.getImages);
+
 export default itemImageRouter;

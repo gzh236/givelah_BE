@@ -30,9 +30,9 @@ export const itemService = {
           username: username,
         },
       });
-    } catch (err) {
+    } catch (err: any) {
       console.log(err);
-      return err as string;
+      return err;
     }
 
     if (!user) {
@@ -47,14 +47,17 @@ export const itemService = {
         userId: user.id,
         name: validatedParams.name,
         category: validatedParams.category,
+        itemUrl: validatedParams.itemUrl ? validatedParams.itemUrl : "",
         description: validatedParams.description,
         status: validatedParams.status,
         availability: validatedParams.availability,
-        expiryDate: validatedParams.expiryDate,
+        expiryDate: validatedParams.expiryDate
+          ? validatedParams.expiryDate
+          : new Date().setFullYear(new Date().getFullYear() + 1),
       });
-    } catch (err) {
+    } catch (err: any) {
       console.log(err);
-      return err as string;
+      return err;
     }
 
     if (!item) {
@@ -80,8 +83,8 @@ export const itemService = {
         },
         include: ItemImages,
       });
-    } catch (err) {
-      return err as string;
+    } catch (err: any) {
+      return err;
     }
 
     if (!item) {
@@ -104,11 +107,10 @@ export const itemService = {
         where: {
           username: username,
         },
-        include: ItemImages,
       });
-    } catch (err) {
+    } catch (err: any) {
       console.log(err);
-      return err as string;
+      return err;
     }
 
     if (!user) {
@@ -136,8 +138,8 @@ export const itemService = {
       return `User has no items up for donation!`;
     }
 
-    // filter the response by status
     return userItems;
+    // make another call to s3 to get the images(?)
   },
 
   showUserWishlistItemsService: async (
@@ -154,12 +156,13 @@ export const itemService = {
           username: username,
         },
       });
-    } catch (err) {
+    } catch (err: any) {
       console.log(err);
-      return err as string;
+      return err;
     }
 
     if (!user) {
+      console.log(`lol`);
       return `Search failed`;
     }
 
@@ -169,13 +172,13 @@ export const itemService = {
           userId: user.id,
           status: "Wishlist Item",
         },
-        include: ItemImages,
       });
-    } catch (err) {
+    } catch (err: any) {
       console.log(err);
-      return err as string;
+      return err;
     }
     console.log(userItems);
+
     if (userItems.length <= 0) {
       return `User has no items in their wishlist!`;
     }
@@ -196,8 +199,8 @@ export const itemService = {
           model: ItemImages,
         },
       });
-    } catch (err) {
-      return err as string;
+    } catch (err: any) {
+      return err;
     }
 
     if (allItems.length <= 0) {
@@ -206,5 +209,39 @@ export const itemService = {
 
     // filter the response by status
     return allItems;
+  },
+
+  editItem: async (req: Request, res: Response, id: string) => {
+    let editResp;
+
+    const validationResult = itemValidator.updateValidator.validate(req.body);
+
+    if (validationResult.error) {
+      return `bad form inputs!`;
+    }
+
+    const validatedParams = validationResult.value;
+
+    try {
+      editResp = await Item.update(
+        {
+          name: validatedParams.name,
+          category: validatedParams.category,
+          description: validatedParams.description,
+          itemUrl: validatedParams.url,
+          expiryDate: validatedParams.expiryDate,
+        },
+        {
+          where: {
+            id: id,
+          },
+        }
+      );
+    } catch (err: any) {
+      console.log(err);
+      return err;
+    }
+
+    return editResp;
   },
 };

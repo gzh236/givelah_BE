@@ -29,6 +29,11 @@ module.exports = {
         type: Sequelize.TEXT,
         allowNull: false,
       },
+
+      itemUrl: {
+        type: Sequelize.STRING,
+      },
+
       status: {
         type: Sequelize.ENUM("For Donation", "Wishlist Item"),
         allowNull: false,
@@ -39,7 +44,6 @@ module.exports = {
       },
       expiryDate: {
         type: Sequelize.DATEONLY,
-        allowNull: false,
       },
       createdAt: {
         allowNull: false,

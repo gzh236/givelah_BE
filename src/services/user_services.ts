@@ -142,9 +142,8 @@ export const userServices = {
 
     // if credentials are valid, sign and issue access token
     const accessToken = jwt.sign(
-      { username: user.username },
-      process.env.JWT_SECRET as string,
-      { expiresIn: "1h" }
+      { username: user.username, userId: user.id },
+      process.env.JWT_SECRET as string
     );
 
     // const refreshToken = jwt.sign(

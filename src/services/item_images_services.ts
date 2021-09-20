@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { uploadImageFile } from "../s3";
+import { uploadImageFile, getFileStream } from "../s3";
 
 import fs, { PathLike } from "fs";
 import util from "util";
@@ -17,8 +17,6 @@ export const itemImagesServices = {
   ): Promise<String | ItemImagesInstance> => {
     let uploadImageToS3;
     let uploadImageToDb;
-
-    console.log(req.file);
 
     if (!req.file) {
       return `No image uploaded!`;
@@ -55,5 +53,17 @@ export const itemImagesServices = {
     }
 
     return `Image uploaded successfully`;
+  },
+
+  getImage: async (req: Request, res: Response, fileKey: string) => {
+    let readStream;
+
+    try {
+      readStream = await getFileStream(fileKey);
+    } catch (err) {
+      console.log(err);
+      return err;
+    }
+    return readStream.pipe(res);
   },
 };
