@@ -36,7 +36,10 @@ const UserAddress = sequelize.define<UserAddressInstance>("UserAddress", {
   },
   streetAddresses: {
     type: DataTypes.STRING,
-    allowNull: false,
+    validate: {
+      allowNull: false,
+      notEmpty: true,
+    },
   },
   postalCode: {
     type: DataTypes.BIGINT.UNSIGNED,

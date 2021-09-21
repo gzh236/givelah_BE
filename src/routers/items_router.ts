@@ -14,7 +14,6 @@ const itemRouter = express.Router();
 itemRouter.post(
   "/create/:username",
   authMiddleware.authenticated,
-
   itemController.createItem
 );
 

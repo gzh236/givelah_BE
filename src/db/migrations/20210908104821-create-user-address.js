@@ -19,7 +19,10 @@ module.exports = {
       },
       streetAddresses: {
         type: Sequelize.STRING,
-        allowNull: false,
+        validate: {
+          allowNull: false,
+          notEmpty: true,
+        },
       },
       postalCode: {
         type: Sequelize.BIGINT.UNSIGNED,

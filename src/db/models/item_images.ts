@@ -34,5 +34,9 @@ export const ItemImages = sequelize.define<ItemImagesInstance>("ItemImage", {
   },
   imageUrl: {
     type: DataTypes.STRING,
+    validate: {
+      allowNull: false,
+      notEmpty: true,
+    },
   },
 });

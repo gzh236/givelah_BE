@@ -124,13 +124,15 @@ export const itemController = {
 
   editItem: async (req: Request, res: Response): Promise<string | any> => {
     let editResp;
-    const id = req.params.itemId;
+    let id = req.params.itemId;
 
     try {
       editResp = await itemService.editItem(req, res, id);
     } catch (err: any) {
       return res.json(err.message);
     }
+
+    console.log(editResp);
 
     res.statusCode = 201;
     return res.json(editResp);

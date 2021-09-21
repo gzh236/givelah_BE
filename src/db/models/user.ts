@@ -32,27 +32,48 @@ const User = sequelize.define<UserInstance>("User", {
   },
   username: {
     type: DataTypes.STRING,
-    allowNull: false,
-    unique: true,
+    validate: {
+      allowNull: false,
+      notEmpty: true,
+      unique: true,
+    },
   },
   email: {
     type: DataTypes.STRING,
-    allowNull: false,
-    unique: true,
+    validate: {
+      allowNull: false,
+      notEmpty: true,
+      unique: true,
+      isEmail: true,
+    },
   },
   firstName: {
     type: DataTypes.STRING,
-    allowNull: false,
+    validate: {
+      allowNull: false,
+      notEmpty: true,
+    },
   },
   lastName: {
     type: DataTypes.STRING,
-    allowNull: false,
+    validate: {
+      allowNull: false,
+      notEmpty: true,
+    },
   },
   selfSummary: {
     type: DataTypes.TEXT,
+    validate: {
+      allowNull: false,
+      notEmpty: true,
+    },
   },
   photoUrl: {
     type: DataTypes.STRING,
+    validate: {
+      allowNull: false,
+      notEmpty: true,
+    },
   },
   hash: {
     type: DataTypes.STRING,

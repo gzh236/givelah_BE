@@ -15,7 +15,7 @@ export const itemService = {
     // validate form input
     const validationResult = itemValidator.itemValidator.validate(req.body);
 
-    if (!validationResult) {
+    if (validationResult.error) {
       return `Bad form inputs`;
     }
 
@@ -217,6 +217,7 @@ export const itemService = {
     const validationResult = itemValidator.updateValidator.validate(req.body);
 
     if (validationResult.error) {
+      console.log(validationResult.error);
       return `bad form inputs!`;
     }
 
@@ -238,10 +239,10 @@ export const itemService = {
         }
       );
     } catch (err: any) {
-      console.log(err);
+      console.log(`lol`);
       return err;
     }
-
+    console.log(editResp);
     return editResp;
   },
 };

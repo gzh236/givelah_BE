@@ -40,8 +40,11 @@ const Item = sequelize.define<ItemInstance>("Item", {
     onDelete: "CASCADE",
   },
   name: {
-    type: DataTypes.STRING,
-    allowNull: false,
+    type: DataTypes.STRING(),
+    validate: {
+      allowNull: false,
+      notEmpty: true,
+    },
   },
   category: {
     type: DataTypes.ENUM(
@@ -52,7 +55,10 @@ const Item = sequelize.define<ItemInstance>("Item", {
       "Lifestyle",
       "Others"
     ),
-    allowNull: false,
+    validate: {
+      allowNull: false,
+      notEmpty: true,
+    },
   },
 
   itemUrl: {
@@ -61,11 +67,17 @@ const Item = sequelize.define<ItemInstance>("Item", {
 
   description: {
     type: DataTypes.TEXT,
-    allowNull: false,
+    validate: {
+      allowNull: false,
+      notEmpty: true,
+    },
   },
   status: {
     type: DataTypes.ENUM("For Donation", "Wishlist Item"),
-    allowNull: false,
+    validate: {
+      allowNull: false,
+      notEmpty: true,
+    },
   },
   availability: {
     type: DataTypes.BOOLEAN,
