@@ -10,31 +10,20 @@ import { authMiddleware } from "../middleware/user_auth";
 const userRouter = express.Router();
 
 const upload = multer({ dest: "uploads/" });
-
-cloudinary.config({
-  cloud_name: process.env.CLOUD_NAME,
-  api_key: process.env.CLOUD_KEY,
-  api_secret: process.env.CLOUD_SECRET,
-});
-
-const cloudStorage = new CloudinaryStorage({
-  cloudinary,
-  params: {
-    allowed_formats: ["jpg", "png"],
-    unique_filename: true,
-    folder: "givelah_BE",
-  },
-});
-
-const uploadParser = multer({ storage: cloudStorage });
-
 // ----------------- ROUTES -----------------//
+
+// upload image
+userRouter.post(
+  "/upload",
+  upload.single("file"),
+  authMiddleware.unauthenticated,
+  userController.uploadImage
+);
 
 // register
 userRouter.post(
   "/register",
   authMiddleware.unauthenticated,
-  uploadParser.single("img"),
   userController.register
 );
 

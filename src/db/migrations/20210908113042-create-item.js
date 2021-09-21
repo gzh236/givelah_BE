@@ -18,35 +18,39 @@ module.exports = {
         onDelete: "CASCADE",
       },
       name: {
-        type: Sequelize.STRING(3),
+        type: Sequelize.STRING(),
+        allowNull: false,
         validate: {
-          allowNull: false,
           notEmpty: true,
         },
       },
       category: {
-        type: Sequelize.STRING(3),
+        type: Sequelize.STRING(),
+        allowNull: false,
         validate: {
-          allowNull: false,
           notEmpty: true,
         },
       },
       description: {
         type: Sequelize.TEXT,
+        allowNull: false,
         validate: {
-          allowNull: false,
           notEmpty: true,
         },
       },
 
       itemUrl: {
         type: Sequelize.STRING,
+        allowNull: false,
+        validate: {
+          notEmpty: true,
+        },
       },
 
       status: {
         type: Sequelize.ENUM("For Donation", "Wishlist Item"),
+        allowNull: false,
         validate: {
-          allowNull: false,
           notEmpty: true,
         },
       },

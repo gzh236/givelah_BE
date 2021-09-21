@@ -3,6 +3,26 @@ import { Request, Response } from "express";
 import { userServices } from "../services/user_services";
 
 export const userController = {
+  uploadImage: async (req: Request, res: Response) => {
+    let upload;
+
+    if (!req.file) {
+      return res.json(`No file uploaded!`);
+    }
+
+    const file = req.file;
+
+    try {
+      upload = await userServices.uploadImage(req, res, file);
+    } catch (err) {
+      console.log(err);
+      return res.json(err);
+    }
+
+    console.log(upload);
+    return res.json(upload);
+  },
+
   register: async (req: Request, res: Response) => {
     let registrationResponse;
 

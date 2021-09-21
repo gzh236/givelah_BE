@@ -3,9 +3,47 @@ import jwt from "jsonwebtoken";
 import { Request, Response } from "express";
 import User from "../db/models/user";
 
+import { uploadImageFile, getFileStream } from "../s3";
+
+import fs, { PathLike } from "fs";
+import util from "util";
+
+const unlinkFile = util.promisify(fs.unlink);
+
 import { userValidation } from "../validations/user_validations";
 
 export const userServices = {
+  uploadImage: async (
+    req: Request,
+    res: Response,
+    file: { path: PathLike; filename: any }
+  ) => {
+    let uploadImageToS3;
+
+    try {
+      uploadImageToS3 = await uploadImageFile(file);
+    } catch (err: any) {
+      console.log(err);
+      return `Error encountered when uploading file!`;
+    }
+
+    if (!uploadImageToS3) {
+      return `Error occurred!`;
+    }
+
+    // remove file from uploads folder
+    try {
+      await unlinkFile(file.path);
+      console.log(`File successfully unlinked`);
+    } catch (err) {
+      console.log(err);
+      return `Error occurred!`;
+    }
+
+    console.log(uploadImageToS3);
+    return uploadImageToS3;
+  },
+
   registrationService: async (req: Request, res: Response) => {
     // validate user form inputs
     const validationResult = userValidation.registrationValidator.validate(
@@ -61,8 +99,11 @@ export const userServices = {
       res.statusCode = 500;
       return `An error occurred!`;
     }
-    // save inputs to db
+
     let createResult;
+    let uploadImageToS3;
+
+    // upload image to S3, get Key and save in DB
 
     try {
       createResult = await User.create({
@@ -70,10 +111,8 @@ export const userServices = {
         email: validatedParams.email,
         firstName: validatedParams.firstName,
         lastName: validatedParams.lastName,
-        selfSummary: validatedParams.selfSummary
-          ? validatedParams.selfSummary
-          : "",
-        photoUrl: req.file ? req.file.path : "",
+        selfSummary: validatedParams.selfSummary,
+        photoUrl: validatedParams.photoUrl,
         hash: hash,
       });
     } catch (err) {

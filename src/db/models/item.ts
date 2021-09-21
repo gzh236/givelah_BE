@@ -41,8 +41,8 @@ const Item = sequelize.define<ItemInstance>("Item", {
   },
   name: {
     type: DataTypes.STRING(),
+    allowNull: false,
     validate: {
-      allowNull: false,
       notEmpty: true,
     },
   },
@@ -55,10 +55,7 @@ const Item = sequelize.define<ItemInstance>("Item", {
       "Lifestyle",
       "Others"
     ),
-    validate: {
-      allowNull: false,
-      notEmpty: true,
-    },
+    allowNull: false,
   },
 
   itemUrl: {
@@ -67,15 +64,15 @@ const Item = sequelize.define<ItemInstance>("Item", {
 
   description: {
     type: DataTypes.TEXT,
+    allowNull: false,
     validate: {
-      allowNull: false,
       notEmpty: true,
     },
   },
   status: {
     type: DataTypes.ENUM("For Donation", "Wishlist Item"),
+    allowNull: false,
     validate: {
-      allowNull: false,
       notEmpty: true,
     },
   },

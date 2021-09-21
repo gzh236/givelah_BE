@@ -25,6 +25,9 @@ module.exports = {
       lastName: {
         type: Sequelize.STRING,
         allowNull: false,
+        validate: {
+          notEmpty: true,
+        },
       },
       selfSummary: {
         type: Sequelize.TEXT,

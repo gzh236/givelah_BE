@@ -11,6 +11,9 @@ module.exports = {
       userId: {
         type: Sequelize.BIGINT.UNSIGNED,
         allowNull: false,
+        validate: {
+          notEmpty: true,
+        },
         references: {
           model: "Users",
           key: "id",
@@ -19,14 +22,17 @@ module.exports = {
       },
       streetAddresses: {
         type: Sequelize.STRING,
+        allowNull: false,
         validate: {
-          allowNull: false,
           notEmpty: true,
         },
       },
       postalCode: {
         type: Sequelize.BIGINT.UNSIGNED,
         allowNull: false,
+        validate: {
+          notEmpty: true,
+        },
       },
       permission: {
         type: Sequelize.BOOLEAN,
