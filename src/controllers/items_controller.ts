@@ -1,6 +1,4 @@
 import { Request, Response } from "express";
-import { itemImagesServices } from "../services/item_images_services";
-import { uploadImageFile } from "../s3";
 
 import { itemService } from "../services/items_services";
 
@@ -108,17 +106,37 @@ export const itemController = {
     return res.json(wishlistResponse);
   },
 
-  showAllItems: async (req: Request, res: Response): Promise<string | any> => {
+  showAllListedItems: async (
+    req: Request,
+    res: Response
+  ): Promise<string | any> => {
     let itemsResponse;
 
     try {
-      itemsResponse = await itemService.showAllItems(req, res);
+      itemsResponse = await itemService.showAllListedItems(req, res);
     } catch (err) {
       res.statusCode = 500;
       return res.json(`Server error`);
     }
 
     res.statusCode = 201;
+    return res.json(itemsResponse);
+  },
+
+  showAllWishlistedItems: async (
+    req: Request,
+    res: Response
+  ): Promise<string | any> => {
+    let itemsResponse;
+
+    try {
+      itemsResponse = await itemService.showAllWishlistedItems(req, res);
+    } catch (err) {
+      res.statusCode = 500;
+      return res.json(`Server error`);
+    }
+
+    res.statusCode = 200;
     return res.json(itemsResponse);
   },
 

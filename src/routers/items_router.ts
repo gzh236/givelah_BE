@@ -37,9 +37,15 @@ itemRouter.get(
 
 // show all items on website
 itemRouter.get(
-  "/view/all",
+  "/view/listed/all",
   authMiddleware.authenticated,
-  itemController.showAllItems
+  itemController.showAllListedItems
+);
+
+itemRouter.get(
+  "/view/listed/wishlist/all",
+  authMiddleware.authenticated,
+  itemController.showAllWishlistedItems
 );
 
 // edit item

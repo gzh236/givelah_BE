@@ -23,6 +23,18 @@ export const userController = {
     return res.json(upload);
   },
 
+  getImage: async (req: Request, res: Response): Promise<any> => {
+    let fileKey = req.params.key;
+    let getImageResponse;
+
+    try {
+      getImageResponse = await userServices.getUserImage(req, res, fileKey);
+    } catch (err) {
+      console.log(err);
+      return res.json(err);
+    }
+  },
+
   register: async (req: Request, res: Response) => {
     let registrationResponse;
 
@@ -33,6 +45,7 @@ export const userController = {
       return res.json(err);
     }
 
+    res.statusCode = 201;
     return res.json(registrationResponse);
   },
 
@@ -43,10 +56,11 @@ export const userController = {
       loginResponse = await userServices.loginService(req, res);
     } catch (err: any) {
       console.log(err);
-      return res.json(err);
+      return err;
     }
 
-    return res.json(loginResponse);
+    res.statusCode = 200;
+    return loginResponse;
   },
 
   logout: async (req: Request, res: Response) => {
@@ -58,14 +72,15 @@ export const userController = {
   showOne: async (req: Request, res: Response) => {
     // verify username in query params
 
-    if (!req.params.username) {
+    if (!req.params.id) {
       return res.json(`Error finding user!`);
     }
 
-    let username = req.params.username;
+    let id = req.params.id;
 
-    let showOneResponse = await userServices.showOneService(username, res);
+    let showOneResponse = await userServices.showOneService(req, res, id);
 
-    return res.json(showOneResponse);
+    res.statusCode = 200;
+    return showOneResponse;
   },
 };

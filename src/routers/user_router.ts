@@ -2,9 +2,6 @@ import express from "express";
 import multer from "multer";
 import { userController } from "../controllers/user_controller";
 
-const cloudinary = require("cloudinary").v2;
-const { CloudinaryStorage } = require("multer-storage-cloudinary");
-
 import { authMiddleware } from "../middleware/user_auth";
 
 const userRouter = express.Router();
@@ -19,6 +16,9 @@ userRouter.post(
   authMiddleware.unauthenticated,
   userController.uploadImage
 );
+
+// get image
+userRouter.get("/picture/:key", userController.getImage);
 
 // register
 userRouter.post(
@@ -35,7 +35,7 @@ userRouter.get("/logout", authMiddleware.authenticated, userController.logout);
 
 // show one user
 userRouter.get(
-  "/show/:username",
+  "/show/:id",
   authMiddleware.authenticated,
   userController.showOne
 );

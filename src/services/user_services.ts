@@ -1,7 +1,8 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { Request, Response } from "express";
-import User from "../db/models/user";
+import User, { UserInstance } from "../db/models/user";
+import admin from "./firebase";
 
 import { uploadImageFile, getFileStream } from "../s3";
 
@@ -138,14 +139,14 @@ export const userServices = {
 
     if (validationResult.error) {
       res.statusCode = 400;
-      console.log(validationResult.error);
-      return `Username or password is incorrect`;
+
+      return res.json(`Username or password is incorrect`);
     }
 
     const validatedParams = validationResult.value;
 
     // find user details from db
-    let user;
+    let user: UserInstance | null = null;
 
     try {
       user = await User.findOne({
@@ -153,12 +154,12 @@ export const userServices = {
       });
     } catch (err: any) {
       res.statusCode = 500;
-      return `Username or password is incorrect`;
+      return res.json(`Username or password is incorrect`);
     }
 
     if (!user) {
       res.statusCode = 400;
-      return `Username or password is incorrect!`;
+      return res.json(`Username or password is incorrect`);
     }
 
     // convert user password to hash and compare
@@ -171,57 +172,89 @@ export const userServices = {
       );
     } catch (err: any) {
       console.log(err);
-      return `Error signing in`;
+      return res.json(err);
     }
 
     if (!isPasswordValidated) {
       res.statusCode = 400;
-      return `Username or password is incorrect!`;
+      res.json(`Username or password is incorrect`);
     }
 
-    // if credentials are valid, sign and issue access token
+    if (!user.id) {
+      return res.json(`Error encountered`);
+    }
+
+    const uid = user.id.toString();
+
     const accessToken = jwt.sign(
-      { username: user.username, userId: user.id },
+      {
+        username: user?.username,
+        userId: user?.id,
+      },
       process.env.JWT_SECRET as string
     );
 
-    // const refreshToken = jwt.sign(
-    //   { username: user.username },
-    //   process.env.REFRESH_TOKEN_SECRET as string,
-    //   { expiresIn: "6h" }
-    // );
+    let firebaseToken = "";
 
-    res.statusCode = 201;
-    return accessToken;
+    admin
+      .auth()
+      .createCustomToken(uid)
+      .then((customToken: string) => {
+        firebaseToken = customToken;
+        return res.json({
+          firebaseToken,
+          accessToken,
+        });
+      })
+      .catch((err: any) => {
+        console.log(err);
+        res.statusCode = 400;
+        return res.json(err);
+      });
+
+    res.statusCode = 200;
+    return true;
   },
 
   logoutService: async (req: Request, res: Response) => {
     // destroy token
     res.clearCookie("authToken");
     res.statusCode = 204;
-    return `Successfully logged out`;
+    return res.json(`Successfully logged out`);
   },
 
-  showOneService: async (username: string, res: Response) => {
+  showOneService: async (req: Request, res: Response, id: string) => {
     // query db for one user
     let user;
 
     try {
       user = await User.findOne({
-        where: { username: username },
+        where: { id: id },
       });
     } catch (err) {
       console.log(err);
       res.statusCode = 500;
-      return err;
+      return res.json(err);
     }
 
     if (!user) {
       res.statusCode = 400;
-      return `User not found!`;
+      return res.json(`User not found!`);
     }
 
     res.statusCode = 200;
-    return user;
+    return res.json(user);
+  },
+
+  getUserImage: async (req: Request, res: Response, fileKey: string) => {
+    let readStream;
+
+    try {
+      readStream = await getFileStream(fileKey);
+    } catch (err) {
+      console.log(err);
+      return res.json(err);
+    }
+    return readStream.pipe(res);
   },
 };

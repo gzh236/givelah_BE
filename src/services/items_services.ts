@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 
 import Item, { ItemInstance } from "../db/models/item";
 import { ItemImages } from "../db/models/item_images";
-import User from "../db/models/user";
+import User, { UserInstance } from "../db/models/user";
 import { itemValidator } from "../validations/items_validations";
 
 export const itemService = {
@@ -73,7 +73,7 @@ export const itemService = {
     itemId: string,
     res: Response,
     key: string
-  ): Promise<string | ItemInstance> => {
+  ): Promise<String | ItemInstance> => {
     let item;
 
     try {
@@ -187,7 +187,7 @@ export const itemService = {
     return userItems;
   },
 
-  showAllItems: async (
+  showAllListedItems: async (
     req: Request,
     res: Response
   ): Promise<string | ItemInstance[]> => {
@@ -195,8 +195,35 @@ export const itemService = {
 
     try {
       allItems = await Item.findAll({
+        where: {
+          status: `For Donation`,
+        },
         include: {
           model: ItemImages,
+        },
+      });
+    } catch (err: any) {
+      return err;
+    }
+
+    if (allItems.length <= 0) {
+      return `No items currently available!`;
+    }
+
+    // filter the response by status
+    return allItems;
+  },
+
+  showAllWishlistedItems: async (
+    req: Request,
+    res: Response
+  ): Promise<string | ItemInstance[]> => {
+    let allItems;
+
+    try {
+      allItems = await Item.findAll({
+        where: {
+          status: "Wishlist Item",
         },
       });
     } catch (err: any) {

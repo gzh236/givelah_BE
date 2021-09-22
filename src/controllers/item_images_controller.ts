@@ -25,7 +25,7 @@ export const itemImagesController = {
       return res.json(`Error uploading file`);
     }
 
-    res.statusCode = 201;
+    res.statusCode = 200;
     return res.json(uploadResult);
   },
 
