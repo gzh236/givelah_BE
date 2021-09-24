@@ -11,7 +11,7 @@ import itemImageRouter from "./routers/items_images_router";
 const app: Application = express();
 const PORT = process.env.PORT || 5000;
 
-app.use(cors({ origin: "*" }));
+app.use(cors());
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
