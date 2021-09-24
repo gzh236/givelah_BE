@@ -24,14 +24,14 @@ const options: cors.CorsOptions = {
   credentials: true,
   methods: "GET,HEAD,OPTIONS,PUT,PATCH,POST,DELETE",
   origin: "*",
-  preflightContinue: false,
+  preflightContinue: true,
 };
 
+app.use(cors({ origin: "*" }));
 //use cors middleware
 app.use(cors(options));
 
 //enable pre-flight
-app.use(cors({ origin: "*" }));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
