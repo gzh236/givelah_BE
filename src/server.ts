@@ -22,6 +22,10 @@ app.use("/api/v1/address", userAddressRouter);
 app.use("/api/v1/items", itemRouter);
 app.use("/api/v1/itemImages", itemImageRouter);
 
+app.get("/", (req, res) => {
+  res.send(`Welcome to Givelah`);
+});
+
 app.listen(PORT, () => {
   console.log(`Givelah's backend listening on port ${PORT}`);
 });
