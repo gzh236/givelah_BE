@@ -42,6 +42,7 @@ export const userController = {
       registrationResponse = await userServices.registrationService(req, res);
     } catch (err: any) {
       console.log(err);
+      res.statusCode = 400;
       return res.json(err);
     }
 
@@ -56,7 +57,8 @@ export const userController = {
       loginResponse = await userServices.loginService(req, res);
     } catch (err: any) {
       console.log(err);
-      return err;
+      res.statusCode = 400;
+      return res.json(err);
     }
 
     res.statusCode = 200;
@@ -81,6 +83,6 @@ export const userController = {
     let showOneResponse = await userServices.showOneService(req, res, id);
 
     res.statusCode = 200;
-    return showOneResponse;
+    return res.json(showOneResponse);
   },
 };

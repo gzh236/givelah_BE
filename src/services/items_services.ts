@@ -217,25 +217,32 @@ export const itemService = {
   showAllWishlistedItems: async (
     req: Request,
     res: Response
-  ): Promise<string | ItemInstance[]> => {
-    let allItems;
+  ): Promise<string | UserInstance[]> => {
+    let allWishlistItems;
 
+    // instead search by User model, include item model where all items = wishlist items
     try {
-      allItems = await Item.findAll({
-        where: {
-          status: "Wishlist Item",
+      allWishlistItems = await User.findAll({
+        include: {
+          model: Item,
+          where: {
+            status: "Wishlist Item",
+          },
         },
       });
     } catch (err: any) {
+      console.log(err);
       return err;
     }
 
-    if (allItems.length <= 0) {
+    console.log(allWishlistItems);
+
+    if (allWishlistItems.length <= 0) {
       return `No items currently available!`;
     }
 
     // filter the response by status
-    return allItems;
+    return allWishlistItems;
   },
 
   editItem: async (req: Request, res: Response, id: string) => {

@@ -9,7 +9,7 @@ const userAddressRouter = express.Router();
 // create
 userAddressRouter.post(
   "/create/:username",
-  authMiddleware.authenticated,
+  authMiddleware.unauthenticated,
   userAddressController.create
 );
 

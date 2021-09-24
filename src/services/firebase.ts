@@ -2,6 +2,7 @@ require("dotenv").config();
 
 import { initializeApp } from "firebase/app";
 import * as admin from "firebase-admin";
+import { getFirestore, collection, addDoc } from "firebase/firestore";
 const serviceAccount = require("../../serviceAccountKey.json");
 
 const firebaseConfig = {

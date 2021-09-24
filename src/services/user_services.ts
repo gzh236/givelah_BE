@@ -3,6 +3,8 @@ import jwt from "jsonwebtoken";
 import { Request, Response } from "express";
 import User, { UserInstance } from "../db/models/user";
 import admin from "./firebase";
+import { getFirestore, collection, addDoc } from "firebase/firestore";
+import { userValidation } from "../validations/user_validations";
 
 import { uploadImageFile, getFileStream } from "../s3";
 
@@ -10,8 +12,6 @@ import fs, { PathLike } from "fs";
 import util from "util";
 
 const unlinkFile = util.promisify(fs.unlink);
-
-import { userValidation } from "../validations/user_validations";
 
 export const userServices = {
   uploadImage: async (
@@ -25,10 +25,12 @@ export const userServices = {
       uploadImageToS3 = await uploadImageFile(file);
     } catch (err: any) {
       console.log(err);
+      res.statusCode = 400;
       return `Error encountered when uploading file!`;
     }
 
     if (!uploadImageToS3) {
+      res.statusCode = 400;
       return `Error occurred!`;
     }
 
@@ -38,11 +40,91 @@ export const userServices = {
       console.log(`File successfully unlinked`);
     } catch (err) {
       console.log(err);
+      res.statusCode = 400;
       return `Error occurred!`;
     }
 
     console.log(uploadImageToS3);
     return uploadImageToS3;
+  },
+
+  loginService: async (req: Request, res: Response) => {
+    // verify user form input
+    const validationResult = userValidation.loginValidator.validate(req.body);
+
+    if (validationResult.error) {
+      res.statusCode = 400;
+
+      return `Username or password is incorrect`;
+    }
+
+    const validatedParams = validationResult.value;
+
+    // find user details from db
+    let user: UserInstance | null = null;
+
+    try {
+      user = await User.findOne({
+        where: { username: validatedParams.username },
+      });
+    } catch (err: any) {
+      res.statusCode = 500;
+      return `Username or password is incorrect`;
+    }
+
+    if (!user) {
+      res.statusCode = 400;
+      return `Username or password is incorrect`;
+    }
+
+    // convert user password to hash and compare
+    let isPasswordValidated = false;
+
+    try {
+      isPasswordValidated = await bcrypt.compare(
+        validatedParams.password,
+        user.hash
+      );
+    } catch (err: any) {
+      console.log(err);
+      return err;
+    }
+
+    if (!isPasswordValidated) {
+      res.statusCode = 400;
+      return `Username or password is incorrect`;
+    }
+
+    if (!user.id) {
+      return `Error encountered`;
+    }
+
+    const uid = user.id.toString();
+
+    const accessToken = jwt.sign(
+      {
+        username: user?.username,
+        userId: user?.id,
+      },
+      process.env.JWT_SECRET as string
+    );
+
+    let firebaseToken = "";
+
+    admin
+      .auth()
+      .createCustomToken(uid)
+      .then((customToken: string) => {
+        firebaseToken = customToken;
+        return res.json({
+          firebaseToken,
+          accessToken,
+        });
+      })
+      .catch((err: any) => {
+        console.log(err);
+        return `Error logging in`;
+      });
   },
 
   registrationService: async (req: Request, res: Response) => {
@@ -71,7 +153,7 @@ export const userServices = {
     } catch (err: any) {
       res.statusCode = 500;
       console.log(err);
-      return err;
+      return false;
     }
 
     if (user) {
@@ -93,18 +175,15 @@ export const userServices = {
       hash = await bcrypt.hash(validatedParams.password, 10);
     } catch (err) {
       res.statusCode = 500;
-      return res.json(`An error occurred!`);
+      return false;
     }
 
     if (!hash) {
       res.statusCode = 500;
-      return `An error occurred!`;
+      return false;
     }
 
     let createResult;
-    let uploadImageToS3;
-
-    // upload image to S3, get Key and save in DB
 
     try {
       createResult = await User.create({
@@ -116,111 +195,41 @@ export const userServices = {
         photoUrl: validatedParams.photoUrl,
         hash: hash,
       });
-    } catch (err) {
+    } catch (err: any) {
       res.statusCode = 500;
       console.log(err);
-      return `err.message`;
+      return false;
     }
 
     console.log(createResult);
 
     if (!createResult) {
       res.statusCode = 500;
-      return "Server Error!";
+      return false;
     }
+    const db = getFirestore();
 
-    res.statusCode = 201;
-    return `${createResult.username} has successfully registered with Givelah!`;
-  },
-
-  loginService: async (req: Request, res: Response) => {
-    // verify user form input
-    const validationResult = userValidation.loginValidator.validate(req.body);
-
-    if (validationResult.error) {
-      res.statusCode = 400;
-
-      return res.json(`Username or password is incorrect`);
-    }
-
-    const validatedParams = validationResult.value;
-
-    // find user details from db
-    let user: UserInstance | null = null;
-
+    // add user to firestore
     try {
-      user = await User.findOne({
-        where: { username: validatedParams.username },
+      const docRef = await addDoc(collection(db, "users"), {
+        id: createResult.id,
+        username: validatedParams.username,
+        selfSummary: validatedParams.selfSummary,
       });
-    } catch (err: any) {
-      res.statusCode = 500;
-      return res.json(`Username or password is incorrect`);
+      console.log("Document written with ID: ", docRef.id);
+      res.statusCode = 201;
+      return true;
+    } catch (e) {
+      console.error("Error adding document: ", e);
+      return false;
     }
-
-    if (!user) {
-      res.statusCode = 400;
-      return res.json(`Username or password is incorrect`);
-    }
-
-    // convert user password to hash and compare
-    let isPasswordValidated = false;
-
-    try {
-      isPasswordValidated = await bcrypt.compare(
-        validatedParams.password,
-        user.hash
-      );
-    } catch (err: any) {
-      console.log(err);
-      return res.json(err);
-    }
-
-    if (!isPasswordValidated) {
-      res.statusCode = 400;
-      res.json(`Username or password is incorrect`);
-    }
-
-    if (!user.id) {
-      return res.json(`Error encountered`);
-    }
-
-    const uid = user.id.toString();
-
-    const accessToken = jwt.sign(
-      {
-        username: user?.username,
-        userId: user?.id,
-      },
-      process.env.JWT_SECRET as string
-    );
-
-    let firebaseToken = "";
-
-    admin
-      .auth()
-      .createCustomToken(uid)
-      .then((customToken: string) => {
-        firebaseToken = customToken;
-        return res.json({
-          firebaseToken,
-          accessToken,
-        });
-      })
-      .catch((err: any) => {
-        console.log(err);
-        res.statusCode = 400;
-        return res.json(err);
-      });
-
-    res.statusCode = 200;
-    return true;
   },
 
   logoutService: async (req: Request, res: Response) => {
     // destroy token
     res.clearCookie("authToken");
     res.statusCode = 204;
-    return res.json(`Successfully logged out`);
+    return `Successfully logged out`;
   },
 
   showOneService: async (req: Request, res: Response, id: string) => {
@@ -234,16 +243,16 @@ export const userServices = {
     } catch (err) {
       console.log(err);
       res.statusCode = 500;
-      return res.json(err);
+      return err;
     }
 
     if (!user) {
       res.statusCode = 400;
-      return res.json(`User not found!`);
+      return `User not found!`;
     }
 
     res.statusCode = 200;
-    return res.json(user);
+    return user;
   },
 
   getUserImage: async (req: Request, res: Response, fileKey: string) => {
@@ -253,7 +262,7 @@ export const userServices = {
       readStream = await getFileStream(fileKey);
     } catch (err) {
       console.log(err);
-      return res.json(err);
+      return err;
     }
     return readStream.pipe(res);
   },
