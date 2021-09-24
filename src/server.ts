@@ -8,10 +8,30 @@ import userAddressRouter from "./routers/user_addresses_router";
 import itemRouter from "./routers/items_router";
 import itemImageRouter from "./routers/items_images_router";
 
+const router = express.Router();
+
 const app: Application = express();
 const PORT = process.env.PORT || 5000;
 
-app.use(cors());
+const options: cors.CorsOptions = {
+  allowedHeaders: [
+    "Origin",
+    "X-Requested-With",
+    "Content-Type",
+    "Accept",
+    "X-Access-Token",
+  ],
+  credentials: true,
+  methods: "GET,HEAD,OPTIONS,PUT,PATCH,POST,DELETE",
+  origin: "*",
+  preflightContinue: false,
+};
+
+//use cors middleware
+app.use(cors(options));
+
+//enable pre-flight
+app.use(cors({ origin: "*" }));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
