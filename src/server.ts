@@ -16,12 +16,12 @@ app.use(cors({ origin: "*" }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.listen(PORT, () => {
-  console.log(`Givelah's backend listening on port ${PORT}`);
-});
-
 // Routes
 app.use("/api/v1/users", userRouter);
 app.use("/api/v1/address", userAddressRouter);
 app.use("/api/v1/items", itemRouter);
 app.use("/api/v1/itemImages", itemImageRouter);
+
+app.listen(PORT, () => {
+  console.log(`Givelah's backend listening on port ${PORT}`);
+});
