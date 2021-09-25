@@ -78,11 +78,27 @@ export const userController = {
       return res.json(`Error finding user!`);
     }
 
-    let id = req.params.id;
+    const id = req.params.id;
 
-    let showOneResponse = await userServices.showOneService(req, res, id);
+    const showOneResponse = await userServices.showOneService(req, res, id);
 
     res.statusCode = 200;
     return res.json(showOneResponse);
+  },
+
+  searchOneByUsername: async (req: Request, res: Response) => {
+    if (!req.params.username) {
+      return res.json(`Error finding user!`);
+    }
+
+    const username = req.params.username;
+
+    const searchResponse = await userServices.searchOneByUsername(
+      req,
+      res,
+      username
+    );
+
+    return res.json(searchResponse);
   },
 };

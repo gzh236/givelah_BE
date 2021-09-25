@@ -40,4 +40,10 @@ userRouter.get(
   userController.showOne
 );
 
+// search by username
+userRouter.get(
+  "/show/username/:username",
+  authMiddleware.authenticated,
+  userController.searchOneByUsername
+);
 export default userRouter;

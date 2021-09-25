@@ -13,23 +13,8 @@ const router = express.Router();
 const app: Application = express();
 const PORT = process.env.PORT || 5000;
 
-const options: cors.CorsOptions = {
-  allowedHeaders: [
-    "Origin",
-    "X-Requested-With",
-    "Content-Type",
-    "Accept",
-    "X-Access-Token",
-  ],
-  credentials: true,
-  methods: "GET,HEAD,OPTIONS,PUT,PATCH,POST,DELETE",
-  origin: "*",
-  preflightContinue: true,
-};
-
 app.use(cors({ origin: "*" }));
 //use cors middleware
-app.use(cors(options));
 
 //enable pre-flight
 

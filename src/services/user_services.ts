@@ -255,6 +255,32 @@ export const userServices = {
     return user;
   },
 
+  searchOneByUsername: async (
+    req: Request,
+    res: Response,
+    username: string
+  ) => {
+    let user;
+
+    try {
+      user = await User.findOne({
+        where: { username: username },
+      });
+    } catch (err) {
+      console.log(err);
+      res.statusCode = 500;
+      return err;
+    }
+
+    if (!user) {
+      res.statusCode = 404;
+      return `User not found!`;
+    }
+
+    res.statusCode = 200;
+    return user;
+  },
+
   getUserImage: async (req: Request, res: Response, fileKey: string) => {
     let readStream;
 

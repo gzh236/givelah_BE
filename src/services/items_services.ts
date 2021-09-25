@@ -146,7 +146,7 @@ export const itemService = {
     req: Request,
     username: string,
     res: Response
-  ): Promise<string | ItemInstance[]> => {
+  ): Promise<string | UserInstance> => {
     let user;
     let userItems;
 
@@ -154,6 +154,12 @@ export const itemService = {
       user = await User.findOne({
         where: {
           username: username,
+        },
+        include: {
+          model: Item,
+          where: {
+            status: "Wishlist Item",
+          },
         },
       });
     } catch (err: any) {
@@ -166,25 +172,7 @@ export const itemService = {
       return `Search failed`;
     }
 
-    try {
-      userItems = await Item.findAll({
-        where: {
-          userId: user.id,
-          status: "Wishlist Item",
-        },
-      });
-    } catch (err: any) {
-      console.log(err);
-      return err;
-    }
-    console.log(userItems);
-
-    if (userItems.length <= 0) {
-      return `User has no items in their wishlist!`;
-    }
-
-    // filter the response by status
-    return userItems;
+    return user;
   },
 
   showAllListedItems: async (
