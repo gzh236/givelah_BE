@@ -11,7 +11,6 @@ import { ItemImages, ItemImagesInstance } from "../db/models/item_images";
 export const itemImagesServices = {
   uploadItemImageService: async (
     req: Request,
-    res: Response,
     id: string,
     file: { path: PathLike; filename: any }
   ): Promise<String | ItemImagesInstance> => {
@@ -47,7 +46,7 @@ export const itemImagesServices = {
     try {
       await unlinkFile(file.path);
       console.log(`File successfully unlinked`);
-    } catch (err) {
+    } catch (err: any) {
       console.log(err);
       return `Error occurred!`;
     }
@@ -55,7 +54,7 @@ export const itemImagesServices = {
     return `Image uploaded successfully`;
   },
 
-  getImage: async (req: Request, res: Response, fileKey: string) => {
+  getImage: async (res: Response, fileKey: string) => {
     let readStream;
 
     try {

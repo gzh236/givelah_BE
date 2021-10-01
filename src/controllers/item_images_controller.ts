@@ -16,7 +16,6 @@ export const itemImagesController = {
     try {
       uploadResult = await itemImagesServices.uploadItemImageService(
         req,
-        res,
         id,
         file
       );
@@ -33,7 +32,7 @@ export const itemImagesController = {
     let fileKey = req.params.key;
     let getImageResponse;
     try {
-      getImageResponse = await itemImagesServices.getImage(req, res, fileKey);
+      getImageResponse = await itemImagesServices.getImage(res, fileKey);
     } catch (err: any) {
       console.log(err);
       return res.json(err);

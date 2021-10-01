@@ -4,18 +4,17 @@ import { Request, Response } from "express";
 import User, { UserInstance } from "../db/models/user";
 import admin from "./firebase";
 import { getFirestore, collection, addDoc } from "firebase/firestore";
-import { userValidation } from "../validations/user_validations";
 
 import { uploadImageFile, getFileStream } from "../s3";
 
 import fs, { PathLike } from "fs";
 import util from "util";
+import internal from "stream";
 
 const unlinkFile = util.promisify(fs.unlink);
 
 export const userServices = {
   uploadImage: async (
-    req: Request,
     res: Response,
     file: { path: PathLike; filename: any }
   ) => {
@@ -41,25 +40,102 @@ export const userServices = {
     } catch (err) {
       console.log(err);
       res.statusCode = 400;
-      return `Error occurred!`;
+      return `Error occurred whilst uploading image!`;
     }
 
-    console.log(uploadImageToS3);
-    return uploadImageToS3;
+    return `Upload Image Success!`;
   },
 
-  loginService: async (req: Request, res: Response) => {
-    // verify user form input
-    const validationResult = userValidation.loginValidator.validate(req.body);
+  registrationService: async (
+    res: Response,
+    validatedParams: any
+  ): Promise<any> => {
+    // ensure that user doesn't already exist in DB
+    let user;
 
-    if (validationResult.error) {
-      res.statusCode = 400;
-
-      return `Username or password is incorrect`;
+    try {
+      user = await User.findOne({
+        where: {
+          email: validatedParams.email,
+          username: validatedParams.username,
+        },
+      });
+    } catch (err: any) {
+      console.log(err);
+      res.statusCode = 500;
+      return false;
     }
 
-    const validatedParams = validationResult.value;
+    if (user) {
+      res.statusCode = 409;
+      return `Email or username already in use!`;
+    }
 
+    // ensure passwords match
+    if (validatedParams.password !== validatedParams.confirmPassword) {
+      res.statusCode = 400;
+      return `Entered passwords need to match!`;
+    }
+
+    // convert password to hash
+    let hash;
+
+    try {
+      hash = await bcrypt.hash(validatedParams.password, 10);
+    } catch (err) {
+      res.statusCode = 500;
+      return false;
+    }
+
+    if (!hash) {
+      res.statusCode = 500;
+      return false;
+    }
+
+    let createResult;
+
+    try {
+      createResult = await User.create({
+        username: validatedParams.username,
+        email: validatedParams.email,
+        firstName: validatedParams.firstName,
+        lastName: validatedParams.lastName,
+        selfSummary: validatedParams.selfSummary,
+        photoUrl: validatedParams.photoUrl,
+        hash: hash,
+      });
+    } catch (err: any) {
+      console.log(err);
+      res.statusCode = 500;
+      return false;
+    }
+
+    if (!createResult) {
+      res.statusCode = 500;
+      return false;
+    }
+
+    const db = getFirestore();
+
+    // add user to firestore
+    try {
+      const docRef = await addDoc(collection(db, "users"), {
+        id: createResult.id,
+        username: validatedParams.username,
+        selfSummary: validatedParams.selfSummary,
+      });
+      console.log("Document written with ID: ", docRef.id);
+    } catch (e) {
+      console.error("Error adding document: ", e);
+      return false;
+    }
+
+    // if registration is successful
+    res.statusCode = 201;
+    return `User account creation successful!`;
+  },
+
+  loginService: async (res: Response, validatedParams: any): Promise<any> => {
     // find user details from db
     let user: UserInstance | null = null;
 
@@ -101,14 +177,16 @@ export const userServices = {
 
     const uid = user.id.toString();
 
+    // sign both username & userId
     const accessToken = jwt.sign(
       {
         username: user?.username,
-        userId: user?.id,
+        userId: uid,
       },
       process.env.JWT_SECRET as string
     );
 
+    // get firebase token
     let firebaseToken = "";
 
     admin
@@ -127,146 +205,25 @@ export const userServices = {
       });
   },
 
-  registrationService: async (req: Request, res: Response) => {
-    // validate user form inputs
-    const validationResult = userValidation.registrationValidator.validate(
-      req.body
-    );
-
-    if (validationResult.error) {
-      res.statusCode = 400;
-      return `Registration form bad inputs`;
-    }
-
-    const validatedParams = validationResult.value;
-
-    // ensure that user doesn't already exist in DB
-    let user;
-
-    try {
-      user = await User.findOne({
-        where: {
-          email: validatedParams.email,
-          username: validatedParams.username,
-        },
-      });
-    } catch (err: any) {
-      res.statusCode = 500;
-      console.log(err);
-      return false;
-    }
-
-    if (user) {
-      res.statusCode = 409;
-      return `Email or username already in use!`;
-    }
-
-    // ensure passwords match
-    if (validatedParams.password !== validatedParams.confirmPassword) {
-      res.statusCode = 400;
-      return `Entered passwords need to match!`;
-    }
-
-    // convert password to hash
-
-    let hash;
-
-    try {
-      hash = await bcrypt.hash(validatedParams.password, 10);
-    } catch (err) {
-      res.statusCode = 500;
-      return false;
-    }
-
-    if (!hash) {
-      res.statusCode = 500;
-      return false;
-    }
-
-    let createResult;
-
-    try {
-      createResult = await User.create({
-        username: validatedParams.username,
-        email: validatedParams.email,
-        firstName: validatedParams.firstName,
-        lastName: validatedParams.lastName,
-        selfSummary: validatedParams.selfSummary,
-        photoUrl: validatedParams.photoUrl,
-        hash: hash,
-      });
-    } catch (err: any) {
-      res.statusCode = 500;
-      console.log(err);
-      return false;
-    }
-
-    console.log(createResult);
-
-    if (!createResult) {
-      res.statusCode = 500;
-      return false;
-    }
-    const db = getFirestore();
-
-    // add user to firestore
-    try {
-      const docRef = await addDoc(collection(db, "users"), {
-        id: createResult.id,
-        username: validatedParams.username,
-        selfSummary: validatedParams.selfSummary,
-      });
-      console.log("Document written with ID: ", docRef.id);
-      res.statusCode = 201;
-      return true;
-    } catch (e) {
-      console.error("Error adding document: ", e);
-      return false;
-    }
-  },
-
-  logoutService: async (req: Request, res: Response) => {
-    // destroy token
-    res.clearCookie("authToken");
+  logoutService: async (res: Response): Promise<String> => {
+    // destroy tokens
+    res.clearCookie("authToken", "firebaseToken");
     res.statusCode = 204;
     return `Successfully logged out`;
   },
 
-  showOneService: async (req: Request, res: Response, id: string) => {
-    // query db for one user
+  showOneService: async (
+    res: Response,
+    id: string
+  ): Promise<UserInstance | String> => {
+    // query db for one user by userId
     let user;
 
     try {
       user = await User.findOne({
         where: { id: id },
       });
-    } catch (err) {
-      console.log(err);
-      res.statusCode = 500;
-      return err;
-    }
-
-    if (!user) {
-      res.statusCode = 400;
-      return `User not found!`;
-    }
-
-    res.statusCode = 200;
-    return user;
-  },
-
-  searchOneByUsername: async (
-    req: Request,
-    res: Response,
-    username: string
-  ) => {
-    let user;
-
-    try {
-      user = await User.findOne({
-        where: { username: username },
-      });
-    } catch (err) {
+    } catch (err: any) {
       console.log(err);
       res.statusCode = 500;
       return err;
@@ -281,12 +238,39 @@ export const userServices = {
     return user;
   },
 
-  getUserImage: async (req: Request, res: Response, fileKey: string) => {
+  // for some situations where only the username is available;
+  // for instance, in Firestore, chat members are stored as usernames instead of userId
+  searchOneByUsername: async (
+    res: Response,
+    username: string
+  ): Promise<UserInstance | String> => {
+    let user;
+
+    try {
+      user = await User.findOne({
+        where: { username: username },
+      });
+    } catch (err: any) {
+      console.log(err);
+      res.statusCode = 500;
+      return err;
+    }
+
+    if (!user) {
+      res.statusCode = 404;
+      return `User not found!`;
+    }
+
+    res.statusCode = 200;
+    return user;
+  },
+
+  getUserImage: async (res: Response, fileKey: string): Promise<any> => {
     let readStream;
 
     try {
       readStream = await getFileStream(fileKey);
-    } catch (err) {
+    } catch (err: any) {
       console.log(err);
       return err;
     }

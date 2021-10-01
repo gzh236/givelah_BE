@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
-
+import { userValidation } from "../validations/user_validations";
 import { userServices } from "../services/user_services";
+import { String } from "aws-sdk/clients/codebuild";
 
 export const userController = {
   uploadImage: async (req: Request, res: Response) => {
@@ -13,33 +14,47 @@ export const userController = {
     const file = req.file;
 
     try {
-      upload = await userServices.uploadImage(req, res, file);
-    } catch (err) {
+      upload = await userServices.uploadImage(res, file);
+    } catch (err: any) {
       console.log(err);
       return res.json(err);
     }
 
-    console.log(upload);
-    return res.json(upload);
+    return res.json(`Successfully uploaded image!`);
   },
 
-  getImage: async (req: Request, res: Response): Promise<any> => {
+  getImage: async (req: Request, res: Response): Promise<void | any> => {
     let fileKey = req.params.key;
     let getImageResponse;
 
     try {
-      getImageResponse = await userServices.getUserImage(req, res, fileKey);
-    } catch (err) {
+      getImageResponse = await userServices.getUserImage(res, fileKey);
+    } catch (err: any) {
       console.log(err);
+      res.statusCode = 500;
       return res.json(err);
     }
   },
 
-  register: async (req: Request, res: Response) => {
+  register: async (req: Request, res: Response): Promise<any> => {
     let registrationResponse;
 
+    const validationResult = userValidation.registrationValidator.validate(
+      req.body
+    );
+
+    if (validationResult.error) {
+      res.statusCode = 400;
+      return `Registration form bad inputs`;
+    }
+
+    const validatedParams = validationResult.value;
+
     try {
-      registrationResponse = await userServices.registrationService(req, res);
+      registrationResponse = await userServices.registrationService(
+        res,
+        validatedParams
+      );
     } catch (err: any) {
       console.log(err);
       res.statusCode = 400;
@@ -50,15 +65,26 @@ export const userController = {
     return res.json(registrationResponse);
   },
 
-  login: async (req: Request, res: Response) => {
+  login: async (req: Request, res: Response): Promise<any> => {
     let loginResponse;
 
+    // verify user form input
+    const validationResult = userValidation.loginValidator.validate(req.body);
+
+    if (validationResult.error) {
+      res.statusCode = 400;
+
+      return res.json(`Username or password is incorrect`);
+    }
+
+    const validatedParams = validationResult.value;
+
     try {
-      loginResponse = await userServices.loginService(req, res);
+      loginResponse = await userServices.loginService(res, validatedParams);
     } catch (err: any) {
       console.log(err);
       res.statusCode = 400;
-      return res.json(err);
+      return res.json(err.message);
     }
 
     res.statusCode = 200;
@@ -66,7 +92,7 @@ export const userController = {
   },
 
   logout: async (req: Request, res: Response) => {
-    let logoutResponse = await userServices.logoutService(req, res);
+    let logoutResponse = await userServices.logoutService(res);
 
     return res.json(logoutResponse);
   },
@@ -80,7 +106,7 @@ export const userController = {
 
     const id = req.params.id;
 
-    const showOneResponse = await userServices.showOneService(req, res, id);
+    const showOneResponse = await userServices.showOneService(res, id);
 
     res.statusCode = 200;
     return res.json(showOneResponse);
@@ -94,7 +120,6 @@ export const userController = {
     const username = req.params.username;
 
     const searchResponse = await userServices.searchOneByUsername(
-      req,
       res,
       username
     );

@@ -1,24 +1,25 @@
 import { Request, Response } from "express";
 
 import { itemService } from "../services/items_services";
+import { itemValidator } from "../validations/items_validations";
 
 export const itemController = {
   createItem: async (req: Request, res: Response): Promise<string | any> => {
-    let username = "";
+    const validationResult = itemValidator.itemValidator.validate(req.body);
 
-    if (req.params.username) {
-      username = req.params.username;
+    if (validationResult.error) {
+      return `Bad form inputs`;
     }
+
+    const validatedParams = validationResult.value;
 
     let itemCreationResponse;
 
     try {
       itemCreationResponse = await itemService.createItemService(
-        req,
-        username,
-        res
+        validatedParams
       );
-    } catch (err) {
+    } catch (err: any) {
       return res.json(`Error creating items`);
     }
     res.statusCode = 201;
@@ -41,12 +42,7 @@ export const itemController = {
     let showItemResponse;
 
     try {
-      showItemResponse = await itemService.showItemService(
-        req,
-        itemId,
-        res,
-        key
-      );
+      showItemResponse = await itemService.showItemService(itemId);
     } catch (err: any) {
       return res.json(`Error displaying item`);
     }
@@ -66,11 +62,7 @@ export const itemController = {
     let showResponse;
 
     try {
-      showResponse = await itemService.showUserDonatedItemsService(
-        req,
-        username,
-        res
-      );
+      showResponse = await itemService.showUserDonatedItemsService(username);
     } catch (err) {
       return res.json(err);
     }
@@ -90,13 +82,11 @@ export const itemController = {
 
     try {
       wishlistResponse = await itemService.showUserWishlistItemsService(
-        req,
-        username,
-        res
+        username
       );
     } catch (err: any) {
-      res.statusCode = 123123213;
       console.log(err);
+      res.statusCode = 500;
       return `Server error`;
     }
 
@@ -113,8 +103,8 @@ export const itemController = {
     let itemsResponse;
 
     try {
-      itemsResponse = await itemService.showAllListedItems(req, res);
-    } catch (err) {
+      itemsResponse = await itemService.showAllListedItems();
+    } catch (err: any) {
       res.statusCode = 500;
       return res.json(`Server error`);
     }
@@ -130,7 +120,7 @@ export const itemController = {
     let itemsResponse;
 
     try {
-      itemsResponse = await itemService.showAllWishlistedItems(req, res);
+      itemsResponse = await itemService.showAllWishlistedItems();
     } catch (err) {
       res.statusCode = 500;
       return res.json(`Server error`);
@@ -144,8 +134,17 @@ export const itemController = {
     let editResp;
     let id = req.params.itemId;
 
+    const validationResult = itemValidator.updateValidator.validate(req.body);
+
+    if (validationResult.error) {
+      console.log(validationResult.error);
+      return `bad form inputs!`;
+    }
+
+    const validatedParams = validationResult.value;
+
     try {
-      editResp = await itemService.editItem(req, res, id);
+      editResp = await itemService.editItem(validatedParams, id);
     } catch (err: any) {
       return res.json(err.message);
     }

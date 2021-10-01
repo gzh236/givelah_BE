@@ -3,23 +3,13 @@ import { Request, Response } from "express";
 import Item, { ItemInstance } from "../db/models/item";
 import { ItemImages } from "../db/models/item_images";
 import User, { UserInstance } from "../db/models/user";
-import { itemValidator } from "../validations/items_validations";
 
 export const itemService = {
   // create item
   createItemService: async (
-    req: Request,
-    username: string,
-    res: Response
+    validatedParams: any
   ): Promise<string | ItemInstance> => {
     // validate form input
-    const validationResult = itemValidator.itemValidator.validate(req.body);
-
-    if (validationResult.error) {
-      return `Bad form inputs`;
-    }
-
-    const validatedParams = validationResult.value;
 
     // determine user
     let user;
@@ -27,16 +17,16 @@ export const itemService = {
     try {
       user = await User.findOne({
         where: {
-          username: username,
+          username: validatedParams.username,
         },
       });
     } catch (err: any) {
       console.log(err);
-      return err;
+      return `Error creating item!`;
     }
 
     if (!user) {
-      return `Error finding user!`;
+      return `Error creating item!`;
     }
 
     // create item
@@ -64,16 +54,10 @@ export const itemService = {
       return `Error occurred during creation of item`;
     }
 
-    console.log(item);
     return item;
   },
 
-  showItemService: async (
-    req: Request,
-    itemId: string,
-    res: Response,
-    key: string
-  ): Promise<String | ItemInstance> => {
+  showItemService: async (itemId: string): Promise<String | ItemInstance> => {
     let item;
 
     try {
@@ -95,9 +79,7 @@ export const itemService = {
   },
 
   showUserDonatedItemsService: async (
-    req: Request,
-    username: string,
-    res: Response
+    username: string
   ): Promise<string | ItemInstance[]> => {
     let user;
     let userItems;
@@ -110,7 +92,7 @@ export const itemService = {
       });
     } catch (err: any) {
       console.log(err);
-      return err;
+      return `Not able to find donated items`;
     }
 
     if (!user) {
@@ -143,12 +125,9 @@ export const itemService = {
   },
 
   showUserWishlistItemsService: async (
-    req: Request,
-    username: string,
-    res: Response
+    username: string
   ): Promise<string | UserInstance> => {
     let user;
-    let userItems;
 
     try {
       user = await User.findOne({
@@ -175,10 +154,7 @@ export const itemService = {
     return user;
   },
 
-  showAllListedItems: async (
-    req: Request,
-    res: Response
-  ): Promise<string | ItemInstance[]> => {
+  showAllListedItems: async (): Promise<string | ItemInstance[]> => {
     let allItems;
 
     try {
@@ -191,7 +167,7 @@ export const itemService = {
         },
       });
     } catch (err: any) {
-      return err;
+      return `Error finding items!`;
     }
 
     if (allItems.length <= 0) {
@@ -202,10 +178,7 @@ export const itemService = {
     return allItems;
   },
 
-  showAllWishlistedItems: async (
-    req: Request,
-    res: Response
-  ): Promise<string | UserInstance[]> => {
+  showAllWishlistedItems: async (): Promise<string | UserInstance[]> => {
     let allWishlistItems;
 
     // instead search by User model, include item model where all items = wishlist items
@@ -223,8 +196,6 @@ export const itemService = {
       return err;
     }
 
-    console.log(allWishlistItems);
-
     if (allWishlistItems.length <= 0) {
       return `No items currently available!`;
     }
@@ -233,17 +204,8 @@ export const itemService = {
     return allWishlistItems;
   },
 
-  editItem: async (req: Request, res: Response, id: string) => {
+  editItem: async (validatedParams: any, id: string) => {
     let editResp;
-
-    const validationResult = itemValidator.updateValidator.validate(req.body);
-
-    if (validationResult.error) {
-      console.log(validationResult.error);
-      return `bad form inputs!`;
-    }
-
-    const validatedParams = validationResult.value;
 
     try {
       editResp = await Item.update(

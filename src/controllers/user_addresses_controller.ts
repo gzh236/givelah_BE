@@ -2,6 +2,11 @@ import User from "../db/models/user";
 import { Request, Response } from "express";
 
 const {
+  addressValidator,
+  permissionsValidator,
+} = require("../validations/user_addresses_validation");
+
+const {
   createService,
   showService,
   updateAddressService,
@@ -10,38 +15,44 @@ const {
 
 export const userAddressController = {
   create: async (req: Request, res: Response) => {
-    let username;
-    if (req.params.username) {
-      username = req.params.username;
+    const validationResult = addressValidator.validate(req.body);
+
+    if (!validationResult) {
+      res.statusCode = 400;
+      return `Bad form inputs`;
     }
 
-    let creationResponse = await createService(req, username, res);
+    const validatedParams = validationResult.value;
+
+    let creationResponse = await createService(res, validatedParams);
 
     return res.json(creationResponse);
   },
 
   updateAddress: async (req: Request, res: Response) => {
-    let username;
+    let validationResult = addressValidator.validate(req.body);
 
-    if (req.params.username) {
-      username = req.params.username;
+    if (!validationResult) {
+      return `Bad input`;
     }
 
-    let updateAddressResponse = await updateAddressService(req, username, res);
+    let validatedParams = validationResult.value;
+
+    let updateAddressResponse = await updateAddressService(validatedParams);
     return res.json(updateAddressResponse);
   },
 
   updatePermission: async (req: Request, res: Response) => {
-    let username;
+    let validationResult = permissionsValidator.validate(req.body);
 
-    if (req.params.username) {
-      username = req.params.username;
+    if (!validationResult) {
+      return `Bad input`;
     }
 
+    let validatedParams = validationResult.value;
+
     let updatedPermissionResponse = await updatePermissionService(
-      req,
-      username,
-      res
+      validatedParams
     );
     return updatedPermissionResponse;
   },
@@ -53,7 +64,7 @@ export const userAddressController = {
       username = req.params.username;
     }
 
-    let showResponse = await showService(req, username, res);
+    let showResponse = await showService(username);
     let userAddress;
 
     if (!showResponse.UserAddress) {

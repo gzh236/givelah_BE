@@ -2,34 +2,20 @@ import { Request, Response } from "express";
 
 import UserAddress from "../db/models/user_address";
 import User from "../db/models/user";
-
-const {
-  addressValidator,
-  permissionsValidator,
-} = require("../validations/user_addresses_validation");
+import { String } from "aws-sdk/clients/acm";
 
 module.exports = {
-  createService: async (req: Request, username: string, res: Response) => {
-    // validate user form inputs
-    const validationResult = addressValidator.validate(req.body);
-
-    if (!validationResult) {
-      res.statusCode = 400;
-      return `Bad form inputs`;
-    }
-
-    const validatedParams = validationResult.value;
-
+  createService: async (res: Response, validatedParams: any) => {
     // find user details
     let user;
 
     try {
       user = await User.findOne({
         where: {
-          username: username,
+          username: validatedParams.username,
         },
       });
-    } catch (err) {
+    } catch (err: any) {
       console.log(err);
       return err;
     }
@@ -43,12 +29,12 @@ module.exports = {
 
     try {
       createAddressResponse = await UserAddress.create({
-        userId: user.id ? user.id : "",
+        userId: user.id,
         streetAddresses: validatedParams.streetAddresses,
         postalCode: validatedParams.postalCode,
         permission: validatedParams.permission,
       });
-    } catch (err) {
+    } catch (err: any) {
       console.log(err);
       res.statusCode = 500;
       return err;
@@ -62,19 +48,7 @@ module.exports = {
     return createAddressResponse;
   },
 
-  updateAddressService: async (
-    req: Request,
-    username: string,
-    res: Response
-  ) => {
-    let validationResult = addressValidator.validate(req.body);
-
-    if (!validationResult) {
-      return `Bad input`;
-    }
-
-    let validatedParams = validationResult.value;
-
+  updateAddressService: async (validatedParams: any) => {
     // find the user
 
     let user;
@@ -82,10 +56,10 @@ module.exports = {
     try {
       user = await User.findOne({
         where: {
-          username: username,
+          username: validatedParams.username,
         },
       });
-    } catch (err) {
+    } catch (err: any) {
       console.log(err);
       return `Error finding user`;
     }
@@ -105,40 +79,28 @@ module.exports = {
         },
         { where: { userId: user.id }, returning: true }
       );
-    } catch (err) {
+    } catch (err: any) {
       console.log(err);
-      return err;
+      return `Error updating address!`;
     }
 
     if (!updatedAddress) {
       return `Error updating address!`;
     }
-    console.log(updatedAddress);
+
     return updatedAddress;
   },
 
-  updatePermissionService: async (
-    req: Request,
-    username: string,
-    res: Response
-  ) => {
-    let validationResult = permissionsValidator.validate(req.body);
-
-    if (!validationResult) {
-      return `Bad input`;
-    }
-
-    let validatedParams = validationResult.value;
-
+  updatePermissionService: async (validatedParams: any) => {
     let user;
 
     try {
       user = await User.findOne({
         where: {
-          username: username,
+          username: validatedParams.username,
         },
       });
-    } catch (err) {
+    } catch (err: any) {
       console.log(err);
       return `Error finding user`;
     }
@@ -156,19 +118,19 @@ module.exports = {
         },
         { where: { userId: user.id } }
       );
-    } catch (err) {
+    } catch (err: any) {
       console.log(err);
-      return err;
+      return `Error occurred!`;
     }
 
     if (!updatedPermission) {
-      return `Error updating address!`;
+      return `Error occurred!`;
     }
-    console.log(updatedPermission);
-    return updatedPermission;
+
+    return true;
   },
 
-  showService: async (req: Request, username: string, res: Response) => {
+  showService: async (username: String) => {
     // show user address from querying of user table
     let user;
 
@@ -179,7 +141,7 @@ module.exports = {
         },
         include: UserAddress,
       });
-    } catch (err) {
+    } catch (err: any) {
       console.log(err);
       return `User not found!`;
     }
