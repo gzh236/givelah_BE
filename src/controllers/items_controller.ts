@@ -5,6 +5,14 @@ import { itemValidator } from "../validations/items_validations";
 
 export const itemController = {
   createItem: async (req: Request, res: Response): Promise<string | any> => {
+    let username;
+    if (!req.params.username) {
+      res.statusCode = 404;
+      return null;
+    }
+
+    username = req.params.username;
+
     const validationResult = itemValidator.itemValidator.validate(req.body);
 
     if (validationResult.error) {
@@ -17,7 +25,8 @@ export const itemController = {
 
     try {
       itemCreationResponse = await itemService.createItemService(
-        validatedParams
+        validatedParams,
+        username
       );
     } catch (err: any) {
       return res.json(`Error creating items`);
@@ -54,17 +63,18 @@ export const itemController = {
     req: Request,
     res: Response
   ): Promise<string | any> => {
-    if (!req.params.username) {
-      return res.json(`No found username`);
+    if (!req.params.userId) {
+      return false;
     }
 
-    let username = req.params.username;
+    let userId = req.params.userId;
     let showResponse;
 
     try {
-      showResponse = await itemService.showUserDonatedItemsService(username);
-    } catch (err) {
-      return res.json(err);
+      showResponse = await itemService.showUserDonatedItemsService(userId);
+    } catch (err: any) {
+      console.log(err);
+      return res.json(false);
     }
 
     res.statusCode = 201;
@@ -72,25 +82,21 @@ export const itemController = {
   },
 
   showUserWishlistItems: async (req: Request, res: Response): Promise<any> => {
-    if (!req.params.username) {
-      return res.json(`Error searching username`);
+    if (!req.params.userId) {
+      return res.json(false);
     }
 
-    const username = req.params.username;
+    const userId = req.params.userId;
 
     let wishlistResponse;
 
     try {
-      wishlistResponse = await itemService.showUserWishlistItemsService(
-        username
-      );
+      wishlistResponse = await itemService.showUserWishlistItemsService(userId);
     } catch (err: any) {
       console.log(err);
       res.statusCode = 500;
-      return `Server error`;
+      return false;
     }
-
-    console.log(wishlistResponse);
 
     res.statusCode = 201;
     return res.json(wishlistResponse);
@@ -106,10 +112,15 @@ export const itemController = {
       itemsResponse = await itemService.showAllListedItems();
     } catch (err: any) {
       res.statusCode = 500;
-      return res.json(`Server error`);
+      return res.json(false);
     }
 
-    res.statusCode = 201;
+    if (!itemsResponse) {
+      res.statusCode = 400;
+      return res.json(false);
+    }
+
+    res.statusCode = 200;
     return res.json(itemsResponse);
   },
 
@@ -123,7 +134,7 @@ export const itemController = {
       itemsResponse = await itemService.showAllWishlistedItems();
     } catch (err) {
       res.statusCode = 500;
-      return res.json(`Server error`);
+      return res.json(false);
     }
 
     res.statusCode = 200;

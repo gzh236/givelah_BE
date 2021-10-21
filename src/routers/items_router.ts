@@ -23,7 +23,7 @@ itemRouter.get(
 
 // Show all items that a user put up for donation
 itemRouter.get(
-  "/show/donated/:username",
+  "/show/donated/:userId",
   authMiddleware.authenticated,
   itemController.showUserDonatedItems
 );
@@ -35,13 +35,14 @@ itemRouter.get(
   itemController.showUserWishlistItems
 );
 
-// show all items on website
+// show all listed items on website
 itemRouter.get(
   "/view/listed/all",
   authMiddleware.authenticated,
   itemController.showAllListedItems
 );
 
+// show all wishlisted items on website
 itemRouter.get(
   "/view/listed/wishlist/all",
   authMiddleware.authenticated,

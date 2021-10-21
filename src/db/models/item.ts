@@ -80,10 +80,6 @@ const Item = sequelize.define<ItemInstance>("Item", {
     type: DataTypes.BOOLEAN,
     allowNull: false,
   },
-  expiryDate: {
-    type: DataTypes.DATEONLY,
-    allowNull: false,
-  },
 });
 
 Item.hasMany(ItemImages, {

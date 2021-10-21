@@ -1,6 +1,6 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import { Request, Response } from "express";
+import { Response } from "express";
 import User, { UserInstance } from "../db/models/user";
 import admin from "./firebase";
 import { getFirestore, collection, addDoc } from "firebase/firestore";
@@ -9,7 +9,6 @@ import { uploadImageFile, getFileStream } from "../s3";
 
 import fs, { PathLike } from "fs";
 import util from "util";
-import internal from "stream";
 
 const unlinkFile = util.promisify(fs.unlink);
 
@@ -30,20 +29,19 @@ export const userServices = {
 
     if (!uploadImageToS3) {
       res.statusCode = 400;
-      return `Error occurred!`;
+      return res.json(`Error occurred!`);
     }
 
     // remove file from uploads folder
     try {
       await unlinkFile(file.path);
       console.log(`File successfully unlinked`);
+      return uploadImageToS3;
     } catch (err) {
       console.log(err);
       res.statusCode = 400;
       return `Error occurred whilst uploading image!`;
     }
-
-    return `Upload Image Success!`;
   },
 
   registrationService: async (
@@ -68,13 +66,13 @@ export const userServices = {
 
     if (user) {
       res.statusCode = 409;
-      return `Email or username already in use!`;
+      return res.json(`Email or username already in use!`);
     }
 
     // ensure passwords match
     if (validatedParams.password !== validatedParams.confirmPassword) {
       res.statusCode = 400;
-      return `Entered passwords need to match!`;
+      return res.json(`Entered passwords need to match!`);
     }
 
     // convert password to hash
@@ -83,13 +81,14 @@ export const userServices = {
     try {
       hash = await bcrypt.hash(validatedParams.password, 10);
     } catch (err) {
+      console.log(err);
       res.statusCode = 500;
       return false;
     }
 
     if (!hash) {
       res.statusCode = 500;
-      return false;
+      return res.json(`Server error!`);
     }
 
     let createResult;
@@ -112,7 +111,7 @@ export const userServices = {
 
     if (!createResult) {
       res.statusCode = 500;
-      return false;
+      return res.json(`Error encountered when registering account`);
     }
 
     const db = getFirestore();
@@ -125,14 +124,12 @@ export const userServices = {
         selfSummary: validatedParams.selfSummary,
       });
       console.log("Document written with ID: ", docRef.id);
-    } catch (e) {
-      console.error("Error adding document: ", e);
+      res.statusCode = 201;
+      return `User account creation successful!`;
+    } catch (err: any) {
+      console.error("Error adding document: ", err);
       return false;
     }
-
-    // if registration is successful
-    res.statusCode = 201;
-    return `User account creation successful!`;
   },
 
   loginService: async (res: Response, validatedParams: any): Promise<any> => {
@@ -150,7 +147,7 @@ export const userServices = {
 
     if (!user) {
       res.statusCode = 400;
-      return `Username or password is incorrect`;
+      return res.json(`Username or password is incorrect`);
     }
 
     // convert user password to hash and compare
@@ -168,11 +165,11 @@ export const userServices = {
 
     if (!isPasswordValidated) {
       res.statusCode = 400;
-      return `Username or password is incorrect`;
+      return res.json(`Username or password is incorrect`);
     }
 
     if (!user.id) {
-      return `Error encountered`;
+      return res.json(`Error encountered`);
     }
 
     const uid = user.id.toString();
@@ -201,15 +198,9 @@ export const userServices = {
       })
       .catch((err: any) => {
         console.log(err);
-        return `Error logging in`;
+        console.log(`Firebase auth error!`);
+        return false;
       });
-  },
-
-  logoutService: async (res: Response): Promise<String> => {
-    // destroy tokens
-    res.clearCookie("authToken", "firebaseToken");
-    res.statusCode = 204;
-    return `Successfully logged out`;
   },
 
   showOneService: async (

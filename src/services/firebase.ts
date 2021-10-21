@@ -1,8 +1,9 @@
 require("dotenv").config();
 
+const serviceAccount = require("../../google-credentials.json");
+
 import { initializeApp } from "firebase/app";
 import * as admin from "firebase-admin";
-const serviceAccount = require("../../google-credentials.json");
 
 const firebaseConfig = {
   apiKey: process.env.FIREBASE_API_KEY,
@@ -19,6 +20,6 @@ admin.initializeApp({
   databaseURL: `https://${serviceAccount.project_id}.firebaseio.com`,
 });
 
-const app = initializeApp(firebaseConfig);
+initializeApp(firebaseConfig);
 
 export default admin;

@@ -1,7 +1,6 @@
 import { Request, Response } from "express";
 import { userValidation } from "../validations/user_validations";
 import { userServices } from "../services/user_services";
-import { String } from "aws-sdk/clients/codebuild";
 
 export const userController = {
   uploadImage: async (req: Request, res: Response) => {
@@ -20,7 +19,7 @@ export const userController = {
       return res.json(err);
     }
 
-    return res.json(`Successfully uploaded image!`);
+    return res.json(upload);
   },
 
   getImage: async (req: Request, res: Response): Promise<void | any> => {
@@ -61,6 +60,11 @@ export const userController = {
       return res.json(err);
     }
 
+    if (!registrationResponse) {
+      res.statusCode = 400;
+      return res.json(`Error registering user!`);
+    }
+
     res.statusCode = 201;
     return res.json(registrationResponse);
   },
@@ -89,12 +93,6 @@ export const userController = {
 
     res.statusCode = 200;
     return loginResponse;
-  },
-
-  logout: async (req: Request, res: Response) => {
-    let logoutResponse = await userServices.logoutService(res);
-
-    return res.json(logoutResponse);
   },
 
   showOne: async (req: Request, res: Response) => {

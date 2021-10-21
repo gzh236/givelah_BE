@@ -8,7 +8,6 @@ export const itemValidator = {
     description: Joi.string().required().min(3),
     status: Joi.string().required(),
     availability: Joi.bool().required(),
-    expiryDate: Joi.date(),
   }),
 
   updateValidator: Joi.object({
@@ -16,6 +15,5 @@ export const itemValidator = {
     category: Joi.string().required().min(3),
     itemUrl: Joi.string().optional().allow(""),
     description: Joi.string().required().min(3),
-    expiryDate: Joi.date(),
   }),
 };

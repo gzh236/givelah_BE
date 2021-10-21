@@ -30,9 +30,6 @@ userRouter.post(
 // login
 userRouter.post("/login", authMiddleware.unauthenticated, userController.login);
 
-// logout
-userRouter.get("/logout", authMiddleware.authenticated, userController.logout);
-
 // show one user
 userRouter.get(
   "/show/:id",

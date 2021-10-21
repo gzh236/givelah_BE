@@ -1,23 +1,19 @@
-import { Request, Response } from "express";
-
 import Item, { ItemInstance } from "../db/models/item";
 import { ItemImages } from "../db/models/item_images";
 import User, { UserInstance } from "../db/models/user";
 
 export const itemService = {
-  // create item
   createItemService: async (
-    validatedParams: any
+    validatedParams: any,
+    username: string
   ): Promise<string | ItemInstance> => {
-    // validate form input
-
     // determine user
     let user;
 
     try {
       user = await User.findOne({
         where: {
-          username: validatedParams.username,
+          username: username,
         },
       });
     } catch (err: any) {
@@ -41,9 +37,6 @@ export const itemService = {
         description: validatedParams.description,
         status: validatedParams.status,
         availability: validatedParams.availability,
-        expiryDate: validatedParams.expiryDate
-          ? validatedParams.expiryDate
-          : new Date().setFullYear(new Date().getFullYear() + 1),
       });
     } catch (err: any) {
       console.log(err);
@@ -57,7 +50,9 @@ export const itemService = {
     return item;
   },
 
-  showItemService: async (itemId: string): Promise<String | ItemInstance> => {
+  showItemService: async (
+    itemId: string
+  ): Promise<String | boolean | ItemInstance> => {
     let item;
 
     try {
@@ -68,36 +63,21 @@ export const itemService = {
         include: ItemImages,
       });
     } catch (err: any) {
-      return err;
+      console.log(err);
+      return false;
     }
 
     if (!item) {
-      return `Item not found!`;
+      return false;
     }
 
     return item;
   },
 
   showUserDonatedItemsService: async (
-    username: string
-  ): Promise<string | ItemInstance[]> => {
-    let user;
+    userId: string | number
+  ): Promise<string | boolean | ItemInstance[]> => {
     let userItems;
-
-    try {
-      user = await User.findOne({
-        where: {
-          username: username,
-        },
-      });
-    } catch (err: any) {
-      console.log(err);
-      return `Not able to find donated items`;
-    }
-
-    if (!user) {
-      return `Search failed`;
-    }
 
     // find the Items model where:
     // 1) items belong to userId
@@ -106,33 +86,32 @@ export const itemService = {
     try {
       userItems = await Item.findAll({
         where: {
-          userId: user.id,
+          userId: userId,
           status: "For Donation",
         },
         include: ItemImages,
       });
-    } catch (err) {
+    } catch (err: any) {
       console.log(err);
-      return err as string;
+      return false;
     }
 
     if (userItems.length <= 0) {
-      return `User has no items up for donation!`;
+      return false;
     }
 
     return userItems;
-    // make another call to s3 to get the images(?)
   },
 
   showUserWishlistItemsService: async (
-    username: string
-  ): Promise<string | UserInstance> => {
+    userId: string | number
+  ): Promise<string | boolean | UserInstance> => {
     let user;
 
     try {
       user = await User.findOne({
         where: {
-          username: username,
+          id: userId,
         },
         include: {
           model: Item,
@@ -143,18 +122,18 @@ export const itemService = {
       });
     } catch (err: any) {
       console.log(err);
-      return err;
+      return false;
     }
 
     if (!user) {
       console.log(`lol`);
-      return `Search failed`;
+      return false;
     }
 
     return user;
   },
 
-  showAllListedItems: async (): Promise<string | ItemInstance[]> => {
+  showAllListedItems: async (): Promise<ItemInstance[] | boolean> => {
     let allItems;
 
     try {
@@ -166,19 +145,21 @@ export const itemService = {
           model: ItemImages,
         },
       });
+      console.log(allItems);
+      if (!allItems) {
+        return false;
+      }
+
+      // filter the response by status
+      return allItems;
     } catch (err: any) {
-      return `Error finding items!`;
+      return false;
     }
-
-    if (allItems.length <= 0) {
-      return `No items currently available!`;
-    }
-
-    // filter the response by status
-    return allItems;
   },
 
-  showAllWishlistedItems: async (): Promise<string | UserInstance[]> => {
+  showAllWishlistedItems: async (): Promise<
+    string | UserInstance[] | boolean
+  > => {
     let allWishlistItems;
 
     // instead search by User model, include item model where all items = wishlist items
@@ -197,7 +178,7 @@ export const itemService = {
     }
 
     if (allWishlistItems.length <= 0) {
-      return `No items currently available!`;
+      return false;
     }
 
     // filter the response by status
@@ -214,7 +195,6 @@ export const itemService = {
           category: validatedParams.category,
           description: validatedParams.description,
           itemUrl: validatedParams.url,
-          expiryDate: validatedParams.expiryDate,
         },
         {
           where: {
@@ -224,7 +204,7 @@ export const itemService = {
       );
     } catch (err: any) {
       console.log(`lol`);
-      return err;
+      return false;
     }
     console.log(editResp);
     return editResp;
