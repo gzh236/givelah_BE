@@ -22,4 +22,6 @@ admin.initializeApp({
 
 initializeApp(firebaseConfig);
 
+const app = initializeApp(firebaseConfig);
+
 export default admin;
