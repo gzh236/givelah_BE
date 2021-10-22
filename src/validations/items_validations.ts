@@ -8,6 +8,7 @@ export const itemValidator = {
     description: Joi.string().required().min(3),
     status: Joi.string().required(),
     availability: Joi.bool().required(),
+    givenTo: Joi.string().allow(""),
   }),
 
   updateValidator: Joi.object({

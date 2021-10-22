@@ -165,4 +165,26 @@ export const itemController = {
     res.statusCode = 201;
     return res.json(editResp);
   },
+
+  changeItemAvailability: async (req: Request, res: Response) => {
+    let editResponse;
+
+    const itemId = req.params.itemId;
+
+    const toggledChoice = req.body.toggledChoice;
+
+    const chatPartnerId = req.body.chatPartnerId;
+
+    try {
+      editResponse = await itemService.changeItemAvailability(
+        itemId,
+        toggledChoice,
+        chatPartnerId
+      );
+      res.statusCode = 200;
+      return res.json(true);
+    } catch (err: any) {
+      console.log(err);
+    }
+  },
 };

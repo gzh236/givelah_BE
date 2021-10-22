@@ -11,6 +11,7 @@ interface ItemAttributes {
   description: Text;
   status: Enumerator[];
   availability: boolean;
+  givenTo: string;
   expiryDate?: Date;
 }
 
@@ -79,6 +80,10 @@ const Item = sequelize.define<ItemInstance>("Item", {
   availability: {
     type: DataTypes.BOOLEAN,
     allowNull: false,
+  },
+  givenTo: {
+    type: DataTypes.STRING,
+    allowNull: true,
   },
 });
 

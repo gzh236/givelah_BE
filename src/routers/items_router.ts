@@ -56,4 +56,10 @@ itemRouter.patch(
   itemController.editItem
 );
 
+itemRouter.patch(
+  "/edit/availability/:itemId",
+  authMiddleware.authenticated,
+  itemController.changeItemAvailability
+);
+
 export default itemRouter;

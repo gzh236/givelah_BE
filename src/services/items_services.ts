@@ -37,6 +37,7 @@ export const itemService = {
         description: validatedParams.description,
         status: validatedParams.status,
         availability: validatedParams.availability,
+        givenTo: "",
       });
     } catch (err: any) {
       console.log(err);
@@ -208,5 +209,32 @@ export const itemService = {
     }
     console.log(editResp);
     return editResp;
+  },
+
+  // need to add a id part to check who the item was given to
+  changeItemAvailability: async (
+    itemId: string,
+    toggledChoice: boolean,
+    chatPartner: string
+  ) => {
+    let response;
+
+    try {
+      response = await Item.update(
+        {
+          availability: toggledChoice,
+          givenTo: chatPartner,
+        },
+        {
+          where: {
+            id: itemId,
+          },
+        }
+      );
+      return true;
+    } catch (err: any) {
+      console.log(err);
+      return false;
+    }
   },
 };
