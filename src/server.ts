@@ -13,10 +13,13 @@ const router = express.Router();
 const app: Application = express();
 const PORT = process.env.PORT || 5000;
 
-app.use(cors({ origin: "*" }));
-//use cors middleware
+const allowedOrigins = ["*"];
 
-//enable pre-flight
+const options: cors.CorsOptions = {
+  origin: allowedOrigins,
+};
+
+app.use(cors(options));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
