@@ -6,6 +6,7 @@
     "module": "commonjs",
     "rootDir": "src",
     "resolveJsonModule": true,
+    "noImplicitAny": false,
 
     "sourceMap": true,
 

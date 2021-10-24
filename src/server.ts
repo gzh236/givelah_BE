@@ -2,7 +2,6 @@ require("dotenv").config();
 
 import express, { Application } from "express";
 import cors from "cors";
-
 import userRouter from "./routers/user_router";
 import userAddressRouter from "./routers/user_addresses_router";
 import itemRouter from "./routers/items_router";
