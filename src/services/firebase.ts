@@ -15,6 +15,8 @@ import * as admin from "firebase-admin";
 //   private_key: process.env.PRIVATE_KEY,
 // };
 
+// test
+
 admin.initializeApp({
   credential: admin.credential.cert({
     privateKey: process.env.PRIVATE_KEY!.replace(/\\n/g, "\n"),
