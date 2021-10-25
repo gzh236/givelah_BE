@@ -17,11 +17,13 @@ const firebaseConfig = {
 };
 
 admin.initializeApp({
-  credential: admin.credential.cert(firebaseConfig),
+  credential: admin.credential.cert({
+    privateKey: process.env.PRIVATE_KEY,
+    projectId: process.env.FIREBASE_PROJECT_ID,
+    clientEmail: process.env.CLIENT_EMAIL,
+  }),
   databaseURL: `https://${firebaseConfig.projectId}.firebaseio.com`,
 });
-
-initializeApp(firebaseConfig);
 
 const app = initializeApp(firebaseConfig);
 
