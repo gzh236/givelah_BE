@@ -16,6 +16,7 @@ const allowedOrigins = ["https://givelah.vercel.app"];
 
 const options: cors.CorsOptions = {
   origin: allowedOrigins,
+  allowedHeaders: "https://givelah.vercel.app",
 };
 
 app.use(cors(options));
