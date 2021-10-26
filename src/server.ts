@@ -19,7 +19,10 @@ const allowedOrigins = [
 
 const options: cors.CorsOptions = {
   origin: allowedOrigins,
-  allowedHeaders: "https://givelah.vercel.app/",
+  allowedHeaders: [
+    "https://givelah.vercel.app/",
+    "https://givelah.vercel.app/",
+  ],
 };
 
 app.use(cors(options));
