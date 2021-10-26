@@ -12,33 +12,11 @@ const router = express.Router();
 const app: Application = express();
 const PORT = process.env.PORT || 5000;
 
-// const allowedOrigins = [
-//   "https://givelah.vercel.app",
-//   "https://givelah.vercel.app/",
-// ];
-
-// const options: cors.CorsOptions = {
-//   origin: allowedOrigins,
-//   allowedHeaders: [
-//     "https://givelah.vercel.app/",
-//     "https://givelah.vercel.app/",
-//   ],
-// };
-
-// app.use(cors(options));
+const allowedOrigins = ["https://givelah.vercel.app/"];
 
 const options: cors.CorsOptions = {
-  allowedHeaders: [
-    "Origin",
-    "X-Requested-With",
-    "Content-Type",
-    "Accept",
-    "X-Access-Token",
-  ],
-  credentials: true,
-  methods: "GET,HEAD,OPTIONS,PUT,PATCH,POST,DELETE",
-  origin: "https://givelah.vercel.app",
-  preflightContinue: true,
+  origin: allowedOrigins,
+  allowedHeaders: ["https://givelah.vercel.app/"],
 };
 
 app.use(cors(options));
