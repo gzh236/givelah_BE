@@ -12,11 +12,11 @@ const router = express.Router();
 const app: Application = express();
 const PORT = process.env.PORT || 5000;
 
-const allowedOrigins = ["https://givelah.vercel.app/"];
+const allowedOrigins = "https://givelah.vercel.app";
 
 const options: cors.CorsOptions = {
   origin: allowedOrigins,
-  allowedHeaders: ["https://givelah.vercel.app/"],
+  credentials: true,
 };
 
 app.use(cors(options));
