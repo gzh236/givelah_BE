@@ -66,13 +66,13 @@ export const userServices = {
 
     if (user) {
       res.statusCode = 409;
-      return res.json(`Email or username already in use!`);
+      return `Email or username already in use!`;
     }
 
     // ensure passwords match
     if (validatedParams.password !== validatedParams.confirmPassword) {
       res.statusCode = 400;
-      return res.json(`Entered passwords need to match!`);
+      return `Entered passwords need to match!`;
     }
 
     // convert password to hash
@@ -88,7 +88,7 @@ export const userServices = {
 
     if (!hash) {
       res.statusCode = 500;
-      return res.json(`Server error!`);
+      return `Server error!`;
     }
 
     let createResult;
@@ -111,7 +111,7 @@ export const userServices = {
 
     if (!createResult) {
       res.statusCode = 500;
-      return res.json(`Error encountered when registering account`);
+      return `Error encountered when registering account`;
     }
 
     const db = getFirestore();
